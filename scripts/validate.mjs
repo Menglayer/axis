@@ -30,6 +30,7 @@ const assertions = [
   [app.includes("fdv: 200"), "FDV default is not 200M"],
   [app.includes("airdrop: 5"), "airdrop default is not 5%"],
   [app.includes("growth: 2"), "growth default is not 2%"],
+  [app.includes("Math.pow(1 + growth / 100, compoundingDays)"), "growth is not compounded daily to TGE"],
   [app.includes('tge: "2026-12-31"'), "TGE default is not 2026-12-31"],
   [app.includes("TRANSLATIONS"), "missing bilingual translations"],
   [Number(snapshot.totalPoints) > 0, "invalid totalPoints snapshot"],

@@ -17,7 +17,7 @@ const FALLBACK_STATS = {
 const TRANSLATIONS = {
   zh: {
     documentTitle: "AXIS 空投计算器",
-    metaDescription: "基于 AXIS Coordinates 官方数据快照估算潜在空投价值。默认 FDV 2 亿美元、预计至 TGE 积分增幅 2%、空投比例 5%。",
+    metaDescription: "基于 AXIS Coordinates 官方数据快照估算潜在空投价值。默认 FDV 2 亿美元、全网积分每日复利增幅 2%、空投比例 5%。",
     axisLogoAria: "打开 AXIS Coordinates",
     navAria: "主要导航",
     navCalculator: "计算器",
@@ -34,7 +34,7 @@ const TRANSLATIONS = {
     reset: "恢复默认",
     yourPoints: "你的 Coordinates",
     airdropRatio: "空投比例",
-    growthToTge: "预计至 TGE 积分增幅",
+    growthToTge: "全网积分每日复利增幅",
     tgeDate: "TGE 时间",
     referralBoost: "邀请码加成",
     boostNote: "若输入的积分已经包含邀请加成，请关闭 20% Boost。",
@@ -44,14 +44,14 @@ const TRANSLATIONS = {
     poolValue: "空投池价值",
     millionPointValue: "每百万积分估值",
     formulaLabel: "计算公式",
-    formula: "FDV × 空投比例 × 有效积分 ÷ 预计全网积分",
+    formula: "FDV × 空投比例 × 有效积分 ÷ [全网积分 × (1 + 日增幅)^天数]",
     marketTotal: "官方总 Coordinates",
-    marketProjected: "预计 TGE 总量",
+    marketProjected: "复利至 TGE 总量",
     marketTge: "TGE 日期",
     marketWallets: "参与钱包",
     marketUpdated: "数据更新时间",
     howTitle: "计算方式",
-    howCopy: "先用 FDV 与空投比例得到潜在空投池价值，再按你的有效 Coordinates 占预计 TGE 全网积分的比例分配。TGE 日期用于倒计时，增幅用于模拟届时的积分稀释。",
+    howCopy: "从今天到 TGE，将全网 Coordinates 按每日增幅复利计算，再用 FDV 与空投比例得到空投池价值，按你的有效积分占复利后总积分的比例分配。",
     disclaimer: "本工具由 MengLayer 独立制作，仅供情景估算，不代表 AXIS 官方承诺或投资建议。FDV、TGE、空投比例、积分规则及 20% Boost 均可能变化，请以项目最终公告为准。",
     loadingData: "正在读取官方快照",
     officialSnapshot: "官方 API 数据快照",
@@ -63,7 +63,7 @@ const TRANSLATIONS = {
   },
   en: {
     documentTitle: "AXIS Airdrop Calculator",
-    metaDescription: "Estimate a potential AXIS airdrop using the official Coordinates snapshot. Defaults: $200M FDV, 2% growth to TGE, and 5% airdrop allocation.",
+    metaDescription: "Estimate a potential AXIS airdrop using the official Coordinates snapshot. Defaults: $200M FDV, 2% daily compound points growth, and 5% airdrop allocation.",
     axisLogoAria: "Open AXIS Coordinates",
     navAria: "Primary navigation",
     navCalculator: "Calculator",
@@ -80,7 +80,7 @@ const TRANSLATIONS = {
     reset: "Reset defaults",
     yourPoints: "Your Coordinates",
     airdropRatio: "Airdrop allocation",
-    growthToTge: "Points growth to TGE",
+    growthToTge: "Daily compound points growth",
     tgeDate: "TGE date",
     referralBoost: "Referral bonus",
     boostNote: "Turn off the 20% Boost if your input already includes the referral bonus.",
@@ -90,14 +90,14 @@ const TRANSLATIONS = {
     poolValue: "Airdrop pool value",
     millionPointValue: "Value per 1M points",
     formulaLabel: "Formula",
-    formula: "FDV × allocation × effective points ÷ projected network points",
+    formula: "FDV × allocation × effective points ÷ [network points × (1 + daily growth)^days]",
     marketTotal: "Official Coordinates",
-    marketProjected: "Projected at TGE",
+    marketProjected: "Compounded at TGE",
     marketTge: "TGE date",
     marketWallets: "Participating wallets",
     marketUpdated: "Data updated",
     howTitle: "How it works",
-    howCopy: "We derive the potential airdrop pool from FDV and allocation, then apply your share of projected network Coordinates at TGE. The date powers the countdown, while growth models expected dilution by TGE.",
+    howCopy: "From today to TGE, network Coordinates compound at the daily growth rate. We then derive the airdrop pool from FDV and allocation and apply your effective share of the compounded total.",
     disclaimer: "Built independently by MengLayer for scenario estimates only. This is not an official AXIS commitment or investment advice. FDV, TGE, allocation, points rules, and the 20% Boost may change; refer to the project's final announcement.",
     loadingData: "Loading official snapshot",
     officialSnapshot: "Official API snapshot",
@@ -193,7 +193,7 @@ function formatDate(timestamp) {
   }).format(date);
 }
 
-function getTgeSummary() {
+function getTgeData() {
   const rawDate = elements.tge.value || DEFAULTS.tge;
   const [year, month, day] = rawDate.split("-").map(Number);
   const target = new Date(year, month - 1, day);
@@ -203,6 +203,10 @@ function getTgeSummary() {
     ? 0
     : Math.ceil((target.getTime() - today.getTime()) / 86_400_000);
   const dateLabel = `${String(year).padStart(4, "0")}.${String(month).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
+  return { dateLabel, diffDays };
+}
+
+function getTgeSummary({ dateLabel, diffDays }) {
   const copy = TRANSLATIONS[language];
 
   if (diffDays > 0) {
@@ -216,11 +220,14 @@ function calculate() {
   const points = Math.max(0, numberValue(elements.points));
   const fdv = Math.max(0, numberValue(elements.fdv));
   const airdrop = Math.min(100, Math.max(0, numberValue(elements.airdrop)));
-  const growth = Math.max(-99, numberValue(elements.growth));
+  const growth = Math.min(100, Math.max(0, numberValue(elements.growth)));
   const boostMultiplier = elements.boost.checked ? 1.2 : 1;
+  const tgeData = getTgeData();
+  const compoundingDays = Math.max(0, tgeData.diffDays);
 
   const effectivePoints = points * boostMultiplier;
-  const projectedTotalPoints = Math.max(1, stats.totalPoints * (1 + growth / 100));
+  const growthFactor = Math.pow(1 + growth / 100, compoundingDays);
+  const projectedTotalPoints = Math.max(1, stats.totalPoints * growthFactor);
   const share = Math.min(1, effectivePoints / projectedTotalPoints);
   const pool = fdv * 1_000_000 * (airdrop / 100);
   const estimatedValue = pool * share;
@@ -235,7 +242,7 @@ function calculate() {
   elements.millionPointValue.textContent = currency(perMillion);
   elements.totalPoints.textContent = compactNumber(stats.totalPoints);
   elements.projectedPoints.textContent = compactNumber(projectedTotalPoints);
-  elements.tgeSummary.textContent = getTgeSummary();
+  elements.tgeSummary.textContent = getTgeSummary(tgeData);
   elements.totalWallets.textContent = integerNumber(stats.totalWallets);
   elements.updatedAt.textContent = formatDate(stats.timestamp);
 }
