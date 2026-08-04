@@ -27,6 +27,7 @@ const assertions = [
   [html.includes("20% Boost"), "missing boost copy"],
   [html.includes('id="languageToggle"'), "missing language toggle"],
   [html.includes('id="tgeInput"'), "missing TGE input"],
+  [html.includes('app.js?v=daily-compound'), "missing app cache-busting version"],
   [app.includes("fdv: 200"), "FDV default is not 200M"],
   [app.includes("airdrop: 5"), "airdrop default is not 5%"],
   [app.includes("growth: 2"), "growth default is not 2%"],
