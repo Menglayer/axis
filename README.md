@@ -9,7 +9,7 @@
 - 可选邀请码 `20% Boost`
 - 支持中文 / English 一键切换
 - 显眼的 MengLayer 作者入口直达 `https://x.com/menglayer`
-- 官方 Coordinates 总量由 GitHub Actions 每 6 小时刷新
+- 官方 Coordinates 总量由 GitHub Actions 每小时刷新
 - 自定义域名：`axis.menglayer.cc`
 
 ## 计算口径

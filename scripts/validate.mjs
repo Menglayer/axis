@@ -8,15 +8,17 @@ const requiredFiles = [
   "public/favicon.svg",
   "public/data/axis-stats.json",
   "public/CNAME",
+  ".github/workflows/refresh-axis-data.yml",
 ];
 
 await Promise.all(requiredFiles.map((file) => access(file)));
 
-const [html, app, snapshotText, cname] = await Promise.all([
+const [html, app, snapshotText, cname, refreshWorkflow] = await Promise.all([
   readFile("public/index.html", "utf8"),
   readFile("public/app.js", "utf8"),
   readFile("public/data/axis-stats.json", "utf8"),
   readFile("public/CNAME", "utf8"),
+  readFile(".github/workflows/refresh-axis-data.yml", "utf8"),
 ]);
 
 const snapshot = JSON.parse(snapshotText);
@@ -38,6 +40,7 @@ const assertions = [
   [Number(snapshot.totalPoints) > 0, "invalid totalPoints snapshot"],
   [Number.isInteger(snapshot.totalWallets), "invalid totalWallets snapshot"],
   [cname.trim() === "axis.menglayer.cc", "invalid CNAME"],
+  [refreshWorkflow.includes('cron: "17 * * * *"'), "AXIS snapshot is not scheduled hourly"],
 ];
 
 for (const [condition, message] of assertions) {
