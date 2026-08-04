@@ -32,22 +32,27 @@ async function fetchPayload() {
 
   try {
     const page = await browser.newPage();
-    await page.goto(COORDINATES_URL, {
+    const coordinatesResponse = await page.goto(COORDINATES_URL, {
       waitUntil: "domcontentloaded",
       timeout: 60_000,
     });
+    console.log(
+      `Loaded AXIS Coordinates page: HTTP ${coordinatesResponse?.status() ?? "unknown"}`,
+    );
 
-    const result = await page.evaluate(async (url) => {
-      const response = await fetch(url, {
-        credentials: "include",
-        headers: { Accept: "application/json" },
-      });
-
-      return {
-        body: await response.text(),
-        status: response.status,
-      };
-    }, API_URL);
+    await page.setExtraHTTPHeaders({
+      Accept: "application/json",
+      Origin: "https://app.axis.to",
+      Referer: COORDINATES_URL,
+    });
+    const apiResponse = await page.goto(API_URL, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    const result = {
+      body: (await apiResponse?.text()) ?? "",
+      status: apiResponse?.status() ?? 0,
+    };
 
     if (result.status !== 200) {
       const excerpt = result.body.replaceAll(/\s+/g, " ").slice(0, 200);
