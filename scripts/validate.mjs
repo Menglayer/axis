@@ -41,6 +41,9 @@ const assertions = [
   [Number.isInteger(snapshot.totalWallets), "invalid totalWallets snapshot"],
   [cname.trim() === "axis.menglayer.cc", "invalid CNAME"],
   [refreshWorkflow.includes('cron: "17 * * * *"'), "AXIS snapshot is not scheduled hourly"],
+  [refreshWorkflow.includes("browser-actions/setup-chrome@v2"), "AXIS refresh does not use Chrome"],
+  [!refreshWorkflow.includes("continue-on-error"), "AXIS refresh hides fetch failures"],
+  [refreshWorkflow.includes("gh workflow run deploy-pages.yml"), "AXIS refresh does not redeploy Pages"],
 ];
 
 for (const [condition, message] of assertions) {

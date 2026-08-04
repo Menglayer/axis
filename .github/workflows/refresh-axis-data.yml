@@ -6,7 +6,12 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
+
+concurrency:
+  group: refresh-axis-data
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -17,16 +22,24 @@ jobs:
         with:
           ref: main
 
+      - name: Set up Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Fetch official AXIS snapshot
-        id: fetch
-        continue-on-error: true
+        env:
+          AXIS_CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
         run: npm run refresh:data
 
       - name: Commit refreshed snapshot
-        if: steps.fetch.outcome == 'success'
+        id: snapshot
         run: |
           if git diff --quiet -- public/data/axis-stats.json; then
             echo "AXIS snapshot is unchanged."
+            echo "updated=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
@@ -34,3 +47,10 @@ jobs:
           git add public/data/axis-stats.json
           git commit -m "chore: refresh AXIS points snapshot"
           git push
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy refreshed snapshot
+        if: steps.snapshot.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --ref main

@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check public/app.js && node scripts/validate.mjs",
+    "check": "node --check public/app.js && node --check scripts/fetch-axis-stats.mjs && node scripts/validate.mjs",
     "refresh:data": "node scripts/fetch-axis-stats.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
   }
 }
