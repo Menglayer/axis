@@ -23,6 +23,7 @@ const snapshot = JSON.parse(snapshotText);
 const assertions = [
   [html.includes("AXIS 空投计算器"), "missing calculator title"],
   [html.includes("https://axis.to/origin/meng"), "missing referral URL"],
+  [html.includes('class="official-link" href="https://app.axis.to/origin/meng"'), "header AXIS button does not use the Meng invite URL"],
   [html.includes("https://x.com/menglayer"), "missing MengLayer X URL"],
   [html.includes("20% Boost"), "missing boost copy"],
   [html.includes('id="languageToggle"'), "missing language toggle"],
