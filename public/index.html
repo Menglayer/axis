@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="基于 AXIS Coordinates 官方数据快照估算潜在空投价值。默认 FDV 2 亿美元、全网积分每日复利增幅 2%、空投比例 5%。"
+      content="基于 AXIS Coordinates 官方数据与最新 Earn 倍率估算潜在空投价值。默认 FDV 2 亿美元、全网积分每日复利增幅 2%、空投比例 5%。"
     />
     <meta name="theme-color" content="#f4f4f5" />
     <meta property="og:title" content="AXIS 空投计算器" />
@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=earn-20260907" />
     <title>AXIS 空投计算器</title>
   </head>
   <body>
@@ -40,6 +40,7 @@
         </a>
         <nav class="top-nav" aria-label="主要导航" data-i18n-aria="navAria">
           <a class="nav-link active" href="#calculator" data-i18n="navCalculator">计算器</a>
+          <a class="nav-link" href="#earn" data-i18n="navEarn">Earn 倍率</a>
           <a class="nav-link" href="https://app.axis.to/coordinates" target="_blank" rel="noopener noreferrer">Coordinates</a>
         </nav>
         <div class="header-actions">
@@ -229,8 +230,78 @@
         </div>
       </section>
 
+      <section class="earn-section shell" id="earn" aria-labelledby="earn-title">
+        <div class="earn-heading">
+          <div>
+            <span class="section-index">02</span>
+            <div>
+              <h2 id="earn-title" data-i18n="earnTitle">官方 Earn 倍率</h2>
+              <p data-i18n="earnCopy">不同持仓方式获得不同 Coordinates 倍率；下列数据来自 AXIS Earn 页面。</p>
+            </div>
+          </div>
+          <a class="earn-official-link" href="https://app.axis.to/earn" target="_blank" rel="noopener noreferrer">
+            <span data-i18n="earnCta">查看实时 Earn</span><span aria-hidden="true">↗</span>
+          </a>
+        </div>
+
+        <div class="earn-grid">
+          <article class="earn-group">
+            <h3 data-i18n="earnGroupAxis">USDx 产品</h3>
+            <div class="earn-row" data-earn-id="origin-vault">
+              <span data-i18n="earnOriginVault">Origin Vault</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>10x</strong></span>
+            </div>
+            <div class="earn-row" data-earn-id="hold-usdx">
+              <span data-i18n="earnHoldUsdx">持有 USDx</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>16x</strong></span>
+            </div>
+            <div class="earn-row" data-earn-id="stake-usdx">
+              <span data-i18n="earnStakeUsdx">质押 USDx</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>4x</strong></span>
+            </div>
+          </article>
+
+          <article class="earn-group">
+            <h3 data-i18n="earnGroupCurve">Curve 池</h3>
+            <div class="earn-row" data-earn-id="curve-usdx-usdt">
+              <span>USDx / USDT</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>20x</strong></span>
+            </div>
+            <div class="earn-row" data-earn-id="curve-susdx-usdx">
+              <span>sUSDx / USDx</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>10x</strong></span>
+            </div>
+          </article>
+
+          <article class="earn-group">
+            <h3 data-i18n="earnGroupPendle">Pendle 市场</h3>
+            <div class="earn-row" data-earn-id="pendle-susdx-yt">
+              <span>sUSDx YT</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>6x</strong></span>
+            </div>
+            <div class="earn-row" data-earn-id="pendle-susdx-lp">
+              <span>sUSDx LP</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>5x</strong></span>
+            </div>
+            <div class="earn-row" data-earn-id="pendle-usdx-yt">
+              <span>USDx YT</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>24x</strong></span>
+            </div>
+            <div class="earn-row" data-earn-id="pendle-usdx-lp">
+              <span>USDx LP</span>
+              <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>20x</strong></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="earn-note">
+          <span><span data-i18n="earnUpdated">倍率数据更新</span> <strong id="earnUpdatedAt">—</strong></span>
+          <span data-i18n="earnBoostNote">符合条件时，邀请码 +20% 会叠加在官方基础倍率之上；倍率不等于 APY。</span>
+        </div>
+      </section>
+
       <section class="method shell" aria-labelledby="method-title">
-        <span class="section-index">02</span>
+        <span class="section-index">03</span>
         <div>
           <h2 id="method-title" data-i18n="howTitle">计算方式</h2>
           <p data-i18n="howCopy">从今天到 TGE，将全网 Coordinates 按每日增幅复利计算，再用 FDV 与空投比例得到空投池价值，按你的有效积分占复利后总积分的比例分配。</p>
@@ -248,6 +319,6 @@
       </div>
     </footer>
 
-    <script src="./app.js?v=daily-compound" defer></script>
+    <script src="./app.js?v=earn-20260907" defer></script>
   </body>
 </html>

@@ -8,19 +8,33 @@ const DEFAULTS = {
 };
 
 const FALLBACK_STATS = {
-  totalPoints: 7_234_583_674.252222,
-  totalWallets: 1_738,
-  timestamp: "2026-08-04T02:56:33.037Z",
+  totalPoints: 56_373_763_304.77931,
+  totalWallets: 2_007,
+  timestamp: "2026-09-07T02:00:27.943Z",
   source: "AXIS official API snapshot",
+  earnUpdatedAt: "2026-09-07T02:00:08.517Z",
+  earnSource: "https://app.axis.to/earn",
+  earnOpportunities: [
+    { id: "origin-vault", multiplier: 10, apy: { type: "rate", value: "9.66%" } },
+    { id: "hold-usdx", multiplier: 16, apy: { type: "coordinates-only" } },
+    { id: "stake-usdx", multiplier: 4, apy: { type: "rate", value: "20.21%" } },
+    { id: "curve-usdx-usdt", multiplier: 20, apy: { type: "not-quoted" } },
+    { id: "curve-susdx-usdx", multiplier: 10, apy: { type: "not-quoted" } },
+    { id: "pendle-susdx-yt", multiplier: 6, apy: { type: "variable" } },
+    { id: "pendle-susdx-lp", multiplier: 5, apy: { type: "not-quoted" } },
+    { id: "pendle-usdx-yt", multiplier: 24, apy: { type: "variable" } },
+    { id: "pendle-usdx-lp", multiplier: 20, apy: { type: "not-quoted" } },
+  ],
 };
 
 const TRANSLATIONS = {
   zh: {
     documentTitle: "AXIS 空投计算器",
-    metaDescription: "基于 AXIS Coordinates 官方数据快照估算潜在空投价值。默认 FDV 2 亿美元、全网积分每日复利增幅 2%、空投比例 5%。",
+    metaDescription: "基于 AXIS Coordinates 官方数据与最新 Earn 倍率估算潜在空投价值。默认 FDV 2 亿美元、全网积分每日复利增幅 2%、空投比例 5%。",
     axisLogoAria: "打开 AXIS Coordinates",
     navAria: "主要导航",
     navCalculator: "计算器",
+    navEarn: "Earn 倍率",
     openAxis: "打开 AXIS",
     heroLine1: "空投价值，",
     heroLine2: "一眼算清。",
@@ -50,6 +64,20 @@ const TRANSLATIONS = {
     marketTge: "TGE 日期",
     marketWallets: "参与钱包",
     marketUpdated: "数据更新时间",
+    earnTitle: "官方 Earn 倍率",
+    earnCopy: "不同持仓方式获得不同 Coordinates 倍率；下列数据来自 AXIS Earn 页面。",
+    earnCta: "查看实时 Earn",
+    earnGroupAxis: "USDx 产品",
+    earnGroupCurve: "Curve 池",
+    earnGroupPendle: "Pendle 市场",
+    earnOriginVault: "Origin Vault",
+    earnHoldUsdx: "持有 USDx",
+    earnStakeUsdx: "质押 USDx",
+    earnUpdated: "倍率数据更新",
+    earnBoostNote: "符合条件时，邀请码 +20% 会叠加在官方基础倍率之上；倍率不等于 APY。",
+    apyCoordinatesOnly: "仅积分",
+    apyVariable: "收益随市场变化",
+    apyNotQuoted: "暂无 APY",
     howTitle: "计算方式",
     howCopy: "从今天到 TGE，将全网 Coordinates 按每日增幅复利计算，再用 FDV 与空投比例得到空投池价值，按你的有效积分占复利后总积分的比例分配。",
     disclaimer: "本工具由 MengLayer 独立制作，仅供情景估算，不代表 AXIS 官方承诺或投资建议。FDV、TGE、空投比例、积分规则及 20% Boost 均可能变化，请以项目最终公告为准。",
@@ -63,10 +91,11 @@ const TRANSLATIONS = {
   },
   en: {
     documentTitle: "AXIS Airdrop Calculator",
-    metaDescription: "Estimate a potential AXIS airdrop using the official Coordinates snapshot. Defaults: $200M FDV, 2% daily compound points growth, and 5% airdrop allocation.",
+    metaDescription: "Estimate a potential AXIS airdrop using official Coordinates data and the latest Earn multipliers. Defaults: $200M FDV, 2% daily compound growth, and 5% allocation.",
     axisLogoAria: "Open AXIS Coordinates",
     navAria: "Primary navigation",
     navCalculator: "Calculator",
+    navEarn: "Earn rates",
     openAxis: "Open AXIS",
     heroLine1: "Airdrop value,",
     heroLine2: "made clear.",
@@ -96,6 +125,20 @@ const TRANSLATIONS = {
     marketTge: "TGE date",
     marketWallets: "Participating wallets",
     marketUpdated: "Data updated",
+    earnTitle: "Official Earn multipliers",
+    earnCopy: "Coordinates rates vary by position. The figures below come from the AXIS Earn page.",
+    earnCta: "View live Earn",
+    earnGroupAxis: "USDx products",
+    earnGroupCurve: "Curve pools",
+    earnGroupPendle: "Pendle markets",
+    earnOriginVault: "Origin Vault",
+    earnHoldUsdx: "Hold USDx",
+    earnStakeUsdx: "Stake USDx",
+    earnUpdated: "Rates updated",
+    earnBoostNote: "When eligible, the +20% referral boost stacks on the official base rate. Multipliers are not APY.",
+    apyCoordinatesOnly: "Coordinates only",
+    apyVariable: "Market-dependent return",
+    apyNotQuoted: "APY not quoted",
     howTitle: "How it works",
     howCopy: "From today to TGE, network Coordinates compound at the daily growth rate. We then derive the airdrop pool from FDV and allocation and apply your effective share of the compounded total.",
     disclaimer: "Built independently by MengLayer for scenario estimates only. This is not an official AXIS commitment or investment advice. FDV, TGE, allocation, points rules, and the 20% Boost may change; refer to the project's final announcement.",
@@ -129,6 +172,8 @@ const elements = {
   tgeSummary: document.querySelector("#tgeSummary"),
   totalWallets: document.querySelector("#totalWallets"),
   updatedAt: document.querySelector("#updatedAt"),
+  earnUpdatedAt: document.querySelector("#earnUpdatedAt"),
+  earnRows: document.querySelectorAll("[data-earn-id]"),
   dataStatus: document.querySelector("#dataStatus"),
   dataStatusText: document.querySelector("#dataStatusText"),
   metaDescription: document.querySelector('meta[name="description"]'),
@@ -191,6 +236,32 @@ function formatDate(timestamp) {
     minute: "2-digit",
     hour12: false,
   }).format(date);
+}
+
+function formatEarnApy(apy) {
+  const copy = TRANSLATIONS[language];
+  if (apy?.type === "rate" && typeof apy.value === "string") {
+    return `${apy.value} APY`;
+  }
+  if (apy?.type === "coordinates-only") return copy.apyCoordinatesOnly;
+  if (apy?.type === "variable") return copy.apyVariable;
+  return copy.apyNotQuoted;
+}
+
+function renderEarnData() {
+  const fallbackOpportunities = FALLBACK_STATS.earnOpportunities;
+  const opportunities = Array.isArray(stats.earnOpportunities)
+    ? stats.earnOpportunities
+    : fallbackOpportunities;
+  const byId = new Map(opportunities.map((opportunity) => [opportunity.id, opportunity]));
+
+  elements.earnRows.forEach((row) => {
+    const opportunity = byId.get(row.dataset.earnId);
+    if (!opportunity) return;
+    row.querySelector("[data-earn-multiplier]").textContent = `${opportunity.multiplier}x`;
+    row.querySelector("[data-earn-apy]").textContent = formatEarnApy(opportunity.apy);
+  });
+  elements.earnUpdatedAt.textContent = formatDate(stats.earnUpdatedAt ?? stats.timestamp);
 }
 
 function getTgeData() {
@@ -265,6 +336,7 @@ function applyLanguage() {
   elements.languageToggle.textContent = language === "zh" ? "EN" : "中文";
   elements.languageToggle.setAttribute("aria-label", copy.switchLanguage);
   elements.dataStatusText.textContent = copy[dataState];
+  renderEarnData();
   calculate();
 }
 
@@ -300,6 +372,7 @@ async function loadStats() {
     console.warn("AXIS stats snapshot unavailable; using fallback.", error);
   }
   elements.dataStatusText.textContent = TRANSLATIONS[language][dataState];
+  renderEarnData();
   calculate();
 }
 

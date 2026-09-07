@@ -1,6 +1,75 @@
 {
-  "totalPoints": "16745673482.872643423758370987",
-  "totalWallets": 1857,
-  "timestamp": "2026-08-10T09:53:01.940Z",
-  "source": "https://api.axis.to/api/v1/points/leaderboard?limit=100"
+  "totalPoints": "56373763304.779310764377979613",
+  "totalWallets": 2007,
+  "timestamp": "2026-09-07T02:00:27.943Z",
+  "source": "https://api.axis.to/api/v1/points/leaderboard?limit=100",
+  "earnUpdatedAt": "2026-09-07T02:00:08.517Z",
+  "earnSource": "https://app.axis.to/earn",
+  "earnOpportunities": [
+    {
+      "id": "origin-vault",
+      "multiplier": 10,
+      "apy": {
+        "type": "rate",
+        "value": "9.66%"
+      }
+    },
+    {
+      "id": "hold-usdx",
+      "multiplier": 16,
+      "apy": {
+        "type": "coordinates-only"
+      }
+    },
+    {
+      "id": "stake-usdx",
+      "multiplier": 4,
+      "apy": {
+        "type": "rate",
+        "value": "20.21%"
+      }
+    },
+    {
+      "id": "curve-usdx-usdt",
+      "multiplier": 20,
+      "apy": {
+        "type": "not-quoted"
+      }
+    },
+    {
+      "id": "curve-susdx-usdx",
+      "multiplier": 10,
+      "apy": {
+        "type": "not-quoted"
+      }
+    },
+    {
+      "id": "pendle-susdx-yt",
+      "multiplier": 6,
+      "apy": {
+        "type": "variable"
+      }
+    },
+    {
+      "id": "pendle-susdx-lp",
+      "multiplier": 5,
+      "apy": {
+        "type": "not-quoted"
+      }
+    },
+    {
+      "id": "pendle-usdx-yt",
+      "multiplier": 24,
+      "apy": {
+        "type": "variable"
+      }
+    },
+    {
+      "id": "pendle-usdx-lp",
+      "multiplier": 20,
+      "apy": {
+        "type": "not-quoted"
+      }
+    }
+  ]
 }

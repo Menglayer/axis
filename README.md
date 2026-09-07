@@ -7,6 +7,7 @@
 - 默认空投比例：`5%`
 - 默认 TGE：`2026-12-31`，支持日期调整与倒计时
 - 可选邀请码 `20% Boost`
+- 同步 AXIS Earn 的 9 个官方赚分机会、Coordinates 倍率与可用 APY
 - 支持中文 / English 一键切换
 - 显眼的 MengLayer 作者入口直达 `https://x.com/menglayer`
 - GitHub Actions 仅保留手动刷新入口，不再定时运行
@@ -40,10 +41,12 @@ npm run check
 
 ## 数据更新
 
-AXIS 官方 API 只允许特定来源直接访问，浏览器从自定义域名请求会被 Cloudflare 拦截。因此页面读取仓库中的同源精简快照，定时工作流从官方接口更新总积分、钱包数和时间戳，不存储 Top 100 排行。
+AXIS 官方 API 只允许特定来源直接访问，浏览器从自定义域名请求会被 Cloudflare 拦截。因此页面读取仓库中的同源精简快照，包含总积分、钱包数、更新时间和 Earn 倍率，不存储 Top 100 排行。GitHub 定时任务保持关闭，按需手动同步。
 
 手动刷新：
 
 ```powershell
 npm run refresh:data
 ```
+
+刷新脚本需要本机 Chrome 或 Edge，并会同时读取 `https://app.axis.to/earn` 与官方积分 API。
