@@ -8,6 +8,9 @@
 - 默认 TGE：`2026-12-31`，支持日期调整与倒计时
 - 可选邀请码 `20% Boost`
 - 同步 AXIS Earn 的 9 个官方赚分机会、Coordinates 倍率与可用 APY
+- 可选择当前策略并修改投入金额、APY、Coordinates 倍率与 TGE 日期
+- 策略 TGE 默认采用 Pendle USDx / sUSDx YT 到期日 `2026-12-03`
+- 自动计算从今天到 TGE 的 APY 日化复利收益与预计总额
 - 支持中文 / English 一键切换
 - 显眼的 MengLayer 作者入口直达 `https://x.com/menglayer`
 - GitHub Actions 仅保留手动刷新入口，不再定时运行
@@ -24,6 +27,17 @@
 ```
 
 如果输入的是已经包含邀请加成的 Coordinates，应关闭 Boost，避免重复计算。
+
+策略收益使用 APY 对应的日化复利口径：
+
+```text
+日收益率 = (1 + APY)^(1 / 365) - 1
+TGE 预计总额 = 投入金额 × (1 + 日收益率)^计息天数
+TGE 预计收益 = TGE 预计总额 - 投入金额
+含 Boost 倍率 = Coordinates 倍率 × 1.2
+```
+
+AXIS 未公布固定 APY 的 Coordinates-only、Curve 与 Pendle YT/LP 策略默认按 `0%`，由用户自行输入预期 APY。Coordinates 倍率只单独展示，不混入资金收益计算。
 
 ## 本地预览
 

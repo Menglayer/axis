@@ -7,17 +7,19 @@ const API_URL = "https://api.axis.to/api/v1/points/leaderboard?limit=100";
 const COORDINATES_URL = "https://app.axis.to/coordinates";
 const EARN_URL = "https://app.axis.to/earn";
 const OUTPUT_PATH = resolve("public/data/axis-stats.json");
+// Both AXIS-listed Pendle USDx and sUSDx markets currently mature on this date.
+const DEFAULT_STRATEGY_TGE = "2026-12-03";
 
 const EARN_DEFINITIONS = [
-  ["origin-vault", "Origin Vault"],
-  ["hold-usdx", "Hold USDx"],
-  ["stake-usdx", "Stake USDx"],
-  ["curve-usdx-usdt", "USDx / USDT pool"],
-  ["curve-susdx-usdx", "sUSDx / USDx pool"],
-  ["pendle-susdx-yt", "sUSDx Yield Token (YT)"],
-  ["pendle-susdx-lp", "sUSDx Liquidity Pool"],
-  ["pendle-usdx-yt", "USDx Yield Token (YT)"],
-  ["pendle-usdx-lp", "USDx Liquidity Pool"],
+  { id: "origin-vault", title: "Origin Vault", url: "https://app.axis.to/origin" },
+  { id: "hold-usdx", title: "Hold USDx", url: "https://app.axis.to/stake#swap" },
+  { id: "stake-usdx", title: "Stake USDx", url: "https://app.axis.to/stake" },
+  { id: "curve-usdx-usdt", title: "USDx / USDT pool", url: "https://curve.finance/dex/ethereum/pools/factory-stable-ng-1051/deposit" },
+  { id: "curve-susdx-usdx", title: "sUSDx / USDx pool", url: "https://curve.finance/dex/ethereum/pools/factory-stable-ng-1052/deposit" },
+  { id: "pendle-susdx-yt", title: "sUSDx Yield Token (YT)", url: "https://app.pendle.finance/trade/markets/0x5e572498e9f83650f0ff24194999bddb4b390928/swap?view=yt&chain=ethereum" },
+  { id: "pendle-susdx-lp", title: "sUSDx Liquidity Pool", url: "https://app.pendle.finance/trade/markets/0x5e572498e9f83650f0ff24194999bddb4b390928/swap?view=pool&chain=ethereum" },
+  { id: "pendle-usdx-yt", title: "USDx Yield Token (YT)", url: "https://app.pendle.finance/trade/markets/0x0bef762d2094ac80821c657dea6783fc43435292/swap?view=yt&chain=ethereum" },
+  { id: "pendle-usdx-lp", title: "USDx Liquidity Pool", url: "https://app.pendle.finance/trade/markets/0x0bef762d2094ac80821c657dea6783fc43435292/swap?view=pool&chain=ethereum" },
 ];
 
 function getChromePath() {
@@ -66,21 +68,24 @@ async function fetchEarnOpportunities(page) {
     });
 
   const rows = await page.locator("table tr").evaluateAll((tableRows) =>
-    tableRows.map((row) =>
-      Array.from(row.querySelectorAll("th,td")).map((cell) => cell.innerText.trim()),
-    ),
+    tableRows.map((row) => ({
+      cells: Array.from(row.querySelectorAll("th,td")).map((cell) => cell.innerText.trim()),
+      href: row.querySelector("a[href]")?.href ?? "",
+    })),
   );
 
-  const opportunities = EARN_DEFINITIONS.map(([id, title]) => {
-    const row = rows.find((cells) => cells[0]?.split("\n")[0] === title);
-    const multiplier = Number.parseFloat(row?.[2]);
+  const opportunities = EARN_DEFINITIONS.map(({ id, title, url }) => {
+    const row = rows.find(({ cells }) => cells[0]?.split("\n")[0] === title);
+    const multiplier = Number.parseFloat(row?.cells[2]);
     if (!row || !Number.isFinite(multiplier)) {
       throw new Error(`AXIS Earn row is missing or invalid: ${title}`);
     }
     return {
       id,
       multiplier,
-      apy: normalizeApy(row[1]),
+      apy: normalizeApy(row.cells[1]),
+      tge: DEFAULT_STRATEGY_TGE,
+      url: row.href || url,
     };
   });
 
@@ -160,6 +165,7 @@ const snapshot = {
   source: API_URL,
   earnUpdatedAt: new Date().toISOString(),
   earnSource: EARN_URL,
+  strategyTge: DEFAULT_STRATEGY_TGE,
   earnOpportunities,
 };
 

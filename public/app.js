@@ -5,25 +5,55 @@ const DEFAULTS = {
   growth: 2,
   tge: "2026-12-31",
   boost: true,
+  strategy: "origin-vault",
+  strategyAmount: 10_000,
+  strategyTge: "2026-12-03",
+  strategyBoost: true,
+};
+
+const STRATEGY_LABELS = {
+  zh: {
+    "origin-vault": "Origin Vault",
+    "hold-usdx": "持有 USDx",
+    "stake-usdx": "质押 USDx",
+    "curve-usdx-usdt": "Curve · USDx / USDT",
+    "curve-susdx-usdx": "Curve · sUSDx / USDx",
+    "pendle-susdx-yt": "Pendle · sUSDx YT",
+    "pendle-susdx-lp": "Pendle · sUSDx LP",
+    "pendle-usdx-yt": "Pendle · USDx YT",
+    "pendle-usdx-lp": "Pendle · USDx LP",
+  },
+  en: {
+    "origin-vault": "Origin Vault",
+    "hold-usdx": "Hold USDx",
+    "stake-usdx": "Stake USDx",
+    "curve-usdx-usdt": "Curve · USDx / USDT",
+    "curve-susdx-usdx": "Curve · sUSDx / USDx",
+    "pendle-susdx-yt": "Pendle · sUSDx YT",
+    "pendle-susdx-lp": "Pendle · sUSDx LP",
+    "pendle-usdx-yt": "Pendle · USDx YT",
+    "pendle-usdx-lp": "Pendle · USDx LP",
+  },
 };
 
 const FALLBACK_STATS = {
-  totalPoints: 56_373_763_304.77931,
-  totalWallets: 2_007,
-  timestamp: "2026-09-07T02:00:27.943Z",
+  totalPoints: 56_854_011_452.13343,
+  totalWallets: 2_033,
+  timestamp: "2026-09-08T07:05:08.074Z",
   source: "AXIS official API snapshot",
-  earnUpdatedAt: "2026-09-07T02:00:08.517Z",
+  earnUpdatedAt: "2026-09-08T07:04:47.340Z",
   earnSource: "https://app.axis.to/earn",
+  strategyTge: "2026-12-03",
   earnOpportunities: [
-    { id: "origin-vault", multiplier: 10, apy: { type: "rate", value: "9.66%" } },
-    { id: "hold-usdx", multiplier: 16, apy: { type: "coordinates-only" } },
-    { id: "stake-usdx", multiplier: 4, apy: { type: "rate", value: "20.21%" } },
-    { id: "curve-usdx-usdt", multiplier: 20, apy: { type: "not-quoted" } },
-    { id: "curve-susdx-usdx", multiplier: 10, apy: { type: "not-quoted" } },
-    { id: "pendle-susdx-yt", multiplier: 6, apy: { type: "variable" } },
-    { id: "pendle-susdx-lp", multiplier: 5, apy: { type: "not-quoted" } },
-    { id: "pendle-usdx-yt", multiplier: 24, apy: { type: "variable" } },
-    { id: "pendle-usdx-lp", multiplier: 20, apy: { type: "not-quoted" } },
+    { id: "origin-vault", multiplier: 10, apy: { type: "rate", value: "7.31%" }, tge: "2026-12-03", url: "https://app.axis.to/origin" },
+    { id: "hold-usdx", multiplier: 16, apy: { type: "coordinates-only" }, tge: "2026-12-03", url: "https://app.axis.to/stake#swap" },
+    { id: "stake-usdx", multiplier: 4, apy: { type: "rate", value: "29.92%" }, tge: "2026-12-03", url: "https://app.axis.to/stake" },
+    { id: "curve-usdx-usdt", multiplier: 20, apy: { type: "not-quoted" }, tge: "2026-12-03", url: "https://curve.finance/dex/ethereum/pools/factory-stable-ng-1051/deposit" },
+    { id: "curve-susdx-usdx", multiplier: 10, apy: { type: "not-quoted" }, tge: "2026-12-03", url: "https://curve.finance/dex/ethereum/pools/factory-stable-ng-1052/deposit" },
+    { id: "pendle-susdx-yt", multiplier: 6, apy: { type: "variable" }, tge: "2026-12-03", url: "https://app.pendle.finance/trade/markets/0x5e572498e9f83650f0ff24194999bddb4b390928/swap?view=yt&chain=ethereum" },
+    { id: "pendle-susdx-lp", multiplier: 5, apy: { type: "not-quoted" }, tge: "2026-12-03", url: "https://app.pendle.finance/trade/markets/0x5e572498e9f83650f0ff24194999bddb4b390928/swap?view=pool&chain=ethereum" },
+    { id: "pendle-usdx-yt", multiplier: 24, apy: { type: "variable" }, tge: "2026-12-03", url: "https://app.pendle.finance/trade/markets/0x0bef762d2094ac80821c657dea6783fc43435292/swap?view=yt&chain=ethereum" },
+    { id: "pendle-usdx-lp", multiplier: 20, apy: { type: "not-quoted" }, tge: "2026-12-03", url: "https://app.pendle.finance/trade/markets/0x0bef762d2094ac80821c657dea6783fc43435292/swap?view=pool&chain=ethereum" },
   ],
 };
 
@@ -78,6 +108,26 @@ const TRANSLATIONS = {
     apyCoordinatesOnly: "仅积分",
     apyVariable: "收益随市场变化",
     apyNotQuoted: "暂无 APY",
+    strategyKicker: "STRATEGY ESTIMATOR",
+    strategyTitle: "策略收益计算器",
+    strategyLabel: "当前策略",
+    strategyAmount: "投入金额",
+    strategyApy: "预估 APY",
+    strategyMultiplier: "Coordinates 倍率",
+    strategyTge: "TGE 时间",
+    ytExpiryHint: "YT 到期日",
+    strategyBoost: "应用邀请码倍率加成",
+    strategyResultTitle: "TGE 预计收益",
+    strategyProfitCaption: "按 APY 日化复利估算",
+    strategyTotal: "TGE 预计总额",
+    strategyDays: "计息天数",
+    strategyEffectiveApy: "采用 APY",
+    strategyEffectiveMultiplier: "含 Boost 倍率",
+    strategyOpen: "打开所选策略",
+    strategyOfficialApy: "已带入 AXIS 当前展示的 APY，可自行修改。",
+    strategyVariableApy: "AXIS 未提供固定 APY；YT 收益取决于市场价格与到期前收益，请输入你的预期 APY。",
+    strategyCoordinatesApy: "该策略仅展示 Coordinates 收益，APY 默认按 0% 处理，可自行修改。",
+    strategyUnquotedApy: "AXIS 暂未展示该策略 APY，默认按 0% 处理，可自行修改。",
     howTitle: "计算方式",
     howCopy: "从今天到 TGE，将全网 Coordinates 按每日增幅复利计算，再用 FDV 与空投比例得到空投池价值，按你的有效积分占复利后总积分的比例分配。",
     disclaimer: "本工具由 MengLayer 独立制作，仅供情景估算，不代表 AXIS 官方承诺或投资建议。FDV、TGE、空投比例、积分规则及 20% Boost 均可能变化，请以项目最终公告为准。",
@@ -139,6 +189,26 @@ const TRANSLATIONS = {
     apyCoordinatesOnly: "Coordinates only",
     apyVariable: "Market-dependent return",
     apyNotQuoted: "APY not quoted",
+    strategyKicker: "STRATEGY ESTIMATOR",
+    strategyTitle: "Strategy yield calculator",
+    strategyLabel: "Current strategy",
+    strategyAmount: "Principal",
+    strategyApy: "Estimated APY",
+    strategyMultiplier: "Coordinates multiplier",
+    strategyTge: "TGE date",
+    ytExpiryHint: "YT expiry",
+    strategyBoost: "Apply referral multiplier boost",
+    strategyResultTitle: "Estimated yield at TGE",
+    strategyProfitCaption: "Estimated using APY converted to a daily rate",
+    strategyTotal: "Estimated value at TGE",
+    strategyDays: "Earning days",
+    strategyEffectiveApy: "APY used",
+    strategyEffectiveMultiplier: "Multiplier with Boost",
+    strategyOpen: "Open selected strategy",
+    strategyOfficialApy: "Using the APY currently shown by AXIS. You can edit it.",
+    strategyVariableApy: "AXIS does not quote a fixed APY. YT return depends on market price and yield to expiry; enter your own APY assumption.",
+    strategyCoordinatesApy: "This strategy shows Coordinates only. APY defaults to 0% and remains editable.",
+    strategyUnquotedApy: "AXIS does not currently quote an APY for this strategy. It defaults to 0% and remains editable.",
     howTitle: "How it works",
     howCopy: "From today to TGE, network Coordinates compound at the daily growth rate. We then derive the airdrop pool from FDV and allocation and apply your effective share of the compounded total.",
     disclaimer: "Built independently by MengLayer for scenario estimates only. This is not an official AXIS commitment or investment advice. FDV, TGE, allocation, points rules, and the 20% Boost may change; refer to the project's final announcement.",
@@ -174,6 +244,21 @@ const elements = {
   updatedAt: document.querySelector("#updatedAt"),
   earnUpdatedAt: document.querySelector("#earnUpdatedAt"),
   earnRows: document.querySelectorAll("[data-earn-id]"),
+  strategyForm: document.querySelector("#strategyForm"),
+  strategySelect: document.querySelector("#strategySelect"),
+  strategyAmount: document.querySelector("#strategyAmountInput"),
+  strategyApy: document.querySelector("#strategyApyInput"),
+  strategyMultiplier: document.querySelector("#strategyMultiplierInput"),
+  strategyTge: document.querySelector("#strategyTgeInput"),
+  strategyBoost: document.querySelector("#strategyBoostInput"),
+  strategyReset: document.querySelector("#strategyResetButton"),
+  strategyApyNote: document.querySelector("#strategyApyNote"),
+  strategyProfit: document.querySelector("#strategyProfit"),
+  strategyTotal: document.querySelector("#strategyTotal"),
+  strategyDays: document.querySelector("#strategyDays"),
+  strategyApySummary: document.querySelector("#strategyApySummary"),
+  strategyMultiplierSummary: document.querySelector("#strategyMultiplierSummary"),
+  strategyLink: document.querySelector("#strategyLink"),
   dataStatus: document.querySelector("#dataStatus"),
   dataStatusText: document.querySelector("#dataStatusText"),
   metaDescription: document.querySelector('meta[name="description"]'),
@@ -182,6 +267,7 @@ const elements = {
 let stats = FALLBACK_STATS;
 let dataState = "loadingData";
 let language = getStoredLanguage();
+let strategyInputsDirty = false;
 
 function getStoredLanguage() {
   const requestedLanguage = new URLSearchParams(window.location.search).get("lang");
@@ -248,11 +334,68 @@ function formatEarnApy(apy) {
   return copy.apyNotQuoted;
 }
 
-function renderEarnData() {
-  const fallbackOpportunities = FALLBACK_STATS.earnOpportunities;
-  const opportunities = Array.isArray(stats.earnOpportunities)
+function getEarnOpportunities() {
+  return Array.isArray(stats.earnOpportunities)
     ? stats.earnOpportunities
-    : fallbackOpportunities;
+    : FALLBACK_STATS.earnOpportunities;
+}
+
+function getStrategy() {
+  const opportunities = getEarnOpportunities();
+  return opportunities.find((item) => item.id === elements.strategySelect.value)
+    ?? opportunities[0];
+}
+
+function getStrategyApyValue(opportunity) {
+  if (opportunity?.apy?.type !== "rate") return 0;
+  const value = Number.parseFloat(opportunity.apy.value);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function getStrategyApyNote(opportunity) {
+  const copy = TRANSLATIONS[language];
+  if (opportunity?.apy?.type === "rate") return copy.strategyOfficialApy;
+  if (opportunity?.apy?.type === "variable") return copy.strategyVariableApy;
+  if (opportunity?.apy?.type === "coordinates-only") return copy.strategyCoordinatesApy;
+  return copy.strategyUnquotedApy;
+}
+
+function renderStrategyOptions() {
+  const selectedId = elements.strategySelect.value || DEFAULTS.strategy;
+  const labels = STRATEGY_LABELS[language];
+  elements.strategySelect.replaceChildren(
+    ...getEarnOpportunities().map((opportunity) => {
+      const option = document.createElement("option");
+      option.value = opportunity.id;
+      option.textContent = `${labels[opportunity.id] ?? opportunity.id} · ${opportunity.multiplier}x`;
+      return option;
+    }),
+  );
+  elements.strategySelect.value = getEarnOpportunities().some((item) => item.id === selectedId)
+    ? selectedId
+    : DEFAULTS.strategy;
+}
+
+function applySelectedStrategyDefaults() {
+  const opportunity = getStrategy();
+  if (!opportunity) return;
+  elements.strategyApy.value = getStrategyApyValue(opportunity);
+  elements.strategyMultiplier.value = opportunity.multiplier;
+  elements.strategyTge.value = opportunity.tge || stats.strategyTge || DEFAULTS.strategyTge;
+  elements.strategyLink.href = opportunity.url || stats.earnSource || FALLBACK_STATS.earnSource;
+  elements.strategyApyNote.textContent = getStrategyApyNote(opportunity);
+  calculateStrategy();
+}
+
+function updateStrategyContext() {
+  const opportunity = getStrategy();
+  if (!opportunity) return;
+  elements.strategyLink.href = opportunity.url || stats.earnSource || FALLBACK_STATS.earnSource;
+  elements.strategyApyNote.textContent = getStrategyApyNote(opportunity);
+}
+
+function renderEarnData() {
+  const opportunities = getEarnOpportunities();
   const byId = new Map(opportunities.map((opportunity) => [opportunity.id, opportunity]));
 
   elements.earnRows.forEach((row) => {
@@ -264,8 +407,8 @@ function renderEarnData() {
   elements.earnUpdatedAt.textContent = formatDate(stats.earnUpdatedAt ?? stats.timestamp);
 }
 
-function getTgeData() {
-  const rawDate = elements.tge.value || DEFAULTS.tge;
+function getDateData(input, fallback) {
+  const rawDate = input.value || fallback;
   const [year, month, day] = rawDate.split("-").map(Number);
   const target = new Date(year, month - 1, day);
   const now = new Date();
@@ -275,6 +418,10 @@ function getTgeData() {
     : Math.ceil((target.getTime() - today.getTime()) / 86_400_000);
   const dateLabel = `${String(year).padStart(4, "0")}.${String(month).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
   return { dateLabel, diffDays };
+}
+
+function getTgeData() {
+  return getDateData(elements.tge, DEFAULTS.tge);
 }
 
 function getTgeSummary({ dateLabel, diffDays }) {
@@ -318,6 +465,23 @@ function calculate() {
   elements.updatedAt.textContent = formatDate(stats.timestamp);
 }
 
+function calculateStrategy() {
+  const amount = Math.max(0, numberValue(elements.strategyAmount));
+  const apy = Math.max(0, numberValue(elements.strategyApy));
+  const multiplier = Math.max(0, numberValue(elements.strategyMultiplier));
+  const days = Math.max(0, getDateData(elements.strategyTge, DEFAULTS.strategyTge).diffDays);
+  const dailyRate = Math.pow(1 + apy / 100, 1 / 365) - 1;
+  const total = amount * Math.pow(1 + dailyRate, days);
+  const profit = total - amount;
+  const effectiveMultiplier = multiplier * (elements.strategyBoost.checked ? 1.2 : 1);
+
+  elements.strategyProfit.textContent = currency(profit);
+  elements.strategyTotal.textContent = currency(total);
+  elements.strategyDays.textContent = integerNumber(days);
+  elements.strategyApySummary.textContent = `${apy.toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
+  elements.strategyMultiplierSummary.textContent = `${effectiveMultiplier.toLocaleString("en-US", { maximumFractionDigits: 2 })}x`;
+}
+
 function applyLanguage() {
   const copy = TRANSLATIONS[language];
   document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
@@ -337,6 +501,9 @@ function applyLanguage() {
   elements.languageToggle.setAttribute("aria-label", copy.switchLanguage);
   elements.dataStatusText.textContent = copy[dataState];
   renderEarnData();
+  renderStrategyOptions();
+  updateStrategyContext();
+  calculateStrategy();
   calculate();
 }
 
@@ -348,6 +515,14 @@ function resetDefaults() {
   elements.tge.value = DEFAULTS.tge;
   elements.boost.checked = DEFAULTS.boost;
   calculate();
+}
+
+function resetStrategyDefaults() {
+  strategyInputsDirty = false;
+  elements.strategySelect.value = DEFAULTS.strategy;
+  elements.strategyAmount.value = DEFAULTS.strategyAmount;
+  elements.strategyBoost.checked = DEFAULTS.strategyBoost;
+  applySelectedStrategyDefaults();
 }
 
 async function loadStats() {
@@ -373,11 +548,24 @@ async function loadStats() {
   }
   elements.dataStatusText.textContent = TRANSLATIONS[language][dataState];
   renderEarnData();
+  renderStrategyOptions();
+  if (!strategyInputsDirty) applySelectedStrategyDefaults();
+  else updateStrategyContext();
+  calculateStrategy();
   calculate();
 }
 
 elements.form.addEventListener("input", calculate);
 elements.reset.addEventListener("click", resetDefaults);
+elements.strategyForm.addEventListener("input", (event) => {
+  if (event.target !== elements.strategySelect) strategyInputsDirty = true;
+  calculateStrategy();
+});
+elements.strategySelect.addEventListener("change", () => {
+  strategyInputsDirty = true;
+  applySelectedStrategyDefaults();
+});
+elements.strategyReset.addEventListener("click", resetStrategyDefaults);
 elements.languageToggle.addEventListener("click", () => {
   language = language === "zh" ? "en" : "zh";
   try {
@@ -389,4 +577,5 @@ elements.languageToggle.addEventListener("click", () => {
 });
 
 applyLanguage();
+resetStrategyDefaults();
 loadStats();

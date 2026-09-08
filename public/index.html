@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=earn-20260907" />
+    <link rel="stylesheet" href="./styles.css?v=strategy-20260908" />
     <title>AXIS 空投计算器</title>
   </head>
   <body>
@@ -244,6 +244,81 @@
           </a>
         </div>
 
+        <div class="strategy-calculator">
+          <form class="strategy-form" id="strategyForm">
+            <div class="strategy-form-heading">
+              <div>
+                <span class="strategy-kicker" data-i18n="strategyKicker">STRATEGY ESTIMATOR</span>
+                <h3 data-i18n="strategyTitle">策略收益计算器</h3>
+              </div>
+              <button class="reset-button" id="strategyResetButton" type="button" data-i18n="reset">恢复默认</button>
+            </div>
+
+            <label class="field strategy-select-field" for="strategySelect">
+              <span class="label-row"><span data-i18n="strategyLabel">当前策略</span><span class="field-hint">AXIS EARN</span></span>
+              <span class="select-shell">
+                <select id="strategySelect" name="strategy" autocomplete="off"></select>
+                <span aria-hidden="true">⌄</span>
+              </span>
+            </label>
+
+            <div class="strategy-fields">
+              <label class="field" for="strategyAmountInput">
+                <span class="label-row"><span data-i18n="strategyAmount">投入金额</span><span class="field-hint">USD</span></span>
+                <span class="input-shell compact">
+                  <span class="input-prefix">$</span>
+                  <input id="strategyAmountInput" name="amount" type="number" value="10000" min="0" step="100" inputmode="decimal" autocomplete="off" />
+                </span>
+              </label>
+
+              <label class="field" for="strategyApyInput">
+                <span class="label-row"><span data-i18n="strategyApy">预估 APY</span><span class="field-hint">EDITABLE</span></span>
+                <span class="input-shell compact">
+                  <input id="strategyApyInput" name="apy" type="number" value="0" min="0" step="0.01" inputmode="decimal" autocomplete="off" />
+                  <span class="input-suffix">%</span>
+                </span>
+              </label>
+
+              <label class="field" for="strategyMultiplierInput">
+                <span class="label-row"><span data-i18n="strategyMultiplier">Coordinates 倍率</span><span class="field-hint">EDITABLE</span></span>
+                <span class="input-shell compact">
+                  <input id="strategyMultiplierInput" name="multiplier" type="number" value="10" min="0" step="0.1" inputmode="decimal" autocomplete="off" />
+                  <span class="input-suffix">x</span>
+                </span>
+              </label>
+
+              <label class="field" for="strategyTgeInput">
+                <span class="label-row"><span data-i18n="strategyTge">TGE 时间</span><span class="field-hint" data-i18n="ytExpiryHint">YT 到期日</span></span>
+                <span class="input-shell compact date-shell">
+                  <input id="strategyTgeInput" name="strategyTge" type="date" value="2026-12-03" autocomplete="off" />
+                </span>
+              </label>
+            </div>
+
+            <label class="strategy-boost" for="strategyBoostInput">
+              <span><strong>+20% Boost</strong><small data-i18n="strategyBoost">应用邀请码倍率加成</small></span>
+              <input id="strategyBoostInput" name="strategyBoost" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"><span></span></span>
+            </label>
+            <p class="strategy-source-note" id="strategyApyNote" aria-live="polite">—</p>
+          </form>
+
+          <section class="strategy-results" aria-labelledby="strategy-result-title">
+            <span class="strategy-kicker" id="strategy-result-title" data-i18n="strategyResultTitle">TGE 预计收益</span>
+            <div class="strategy-profit" id="strategyProfit">$0</div>
+            <span class="strategy-profit-caption" data-i18n="strategyProfitCaption">按 APY 日化复利估算</span>
+            <dl class="strategy-breakdown">
+              <div><dt data-i18n="strategyTotal">TGE 预计总额</dt><dd id="strategyTotal">$0</dd></div>
+              <div><dt data-i18n="strategyDays">计息天数</dt><dd id="strategyDays">0</dd></div>
+              <div><dt data-i18n="strategyEffectiveApy">采用 APY</dt><dd id="strategyApySummary">0%</dd></div>
+              <div><dt data-i18n="strategyEffectiveMultiplier">含 Boost 倍率</dt><dd id="strategyMultiplierSummary">12x</dd></div>
+            </dl>
+            <a class="strategy-link" id="strategyLink" href="https://app.axis.to/earn" target="_blank" rel="noopener noreferrer">
+              <span data-i18n="strategyOpen">打开所选策略</span><span aria-hidden="true">↗</span>
+            </a>
+          </section>
+        </div>
+
         <div class="earn-grid">
           <article class="earn-group">
             <h3 data-i18n="earnGroupAxis">USDx 产品</h3>
@@ -319,6 +394,6 @@
       </div>
     </footer>
 
-    <script src="./app.js?v=earn-20260907" defer></script>
+    <script src="./app.js?v=strategy-20260908" defer></script>
   </body>
 </html>
