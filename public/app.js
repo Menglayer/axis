@@ -1,9 +1,9 @@
 const DEFAULTS = {
-  points: 1_000_000,
+  points: 0,
   fdv: 200,
   airdrop: 5,
   growth: 2,
-  tge: "2026-12-31",
+  tge: "2026-12-03",
   boost: true,
   strategy: "origin-vault",
   strategyAmount: 10_000,
