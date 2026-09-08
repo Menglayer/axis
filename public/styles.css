@@ -1453,3 +1453,14 @@ button:focus-visible {
 [hidden] { display: none !important; }
 #calculator > .earn-section { margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--line); }
 input[readonly] { opacity: .7; }
+
+.valuation-settings { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+.valuation-settings h4 { margin: 0 0 18px; font-size: 15px; }
+.valuation-settings .field-primary .input-shell { min-height: 54px; }
+.total-apy-card { display: grid; gap: 12px; padding: 24px 0; border-bottom: 1px solid #ffffff26; }
+.total-apy-card > span { font-size: 14px; color: #c9d6e1; }
+.total-apy-card strong { font-family: 'Geist Mono', monospace; font-size: clamp(32px, 3.5vw, 48px); letter-spacing: -.045em; overflow-wrap: anywhere; color: #bde5ff; }
+.total-apy-card small { color: #aab5c0; font-size: 11px; line-height: 1.65; }
+.strategy-results { align-self: start; }
+#calculator > .earn-section { margin-top: 0; padding-top: 0; border-top: 0; }
+.earn-section > .market-strip { margin-bottom: 24px; }

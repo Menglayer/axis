@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=earn-20260908" />
+    <link rel="stylesheet" href="./styles.css?v=unified-20260908" />
     <title>AXIS 空投计算器</title>
   </head>
   <body>
@@ -111,123 +111,6 @@
           </div>
         </div>
 
-        <div class="calculator-grid">
-          <form class="panel inputs-panel" id="calculatorForm">
-            <div class="panel-title-row">
-              <h3 data-i18n="parameters">估算参数</h3>
-              <button class="reset-button" id="resetButton" type="button" data-i18n="reset">恢复默认</button>
-            </div>
-
-            <label class="field field-primary" for="pointsInput">
-              <span class="label-row">
-                <span data-i18n="yourPoints">你的 Coordinates</span>
-                <span class="field-hint">POINTS</span>
-              </span>
-              <span class="input-shell">
-                <input id="pointsInput" name="points" type="number" value="1000000" min="0" step="1000" inputmode="decimal" autocomplete="off" />
-                <span class="input-suffix">PTS</span>
-              </span>
-            </label>
-
-            <div class="field-grid">
-              <label class="field" for="fdvInput">
-                <span class="label-row"><span>FDV</span><span class="field-hint">USD · M</span></span>
-                <span class="input-shell compact">
-                  <span class="input-prefix">$</span>
-                  <input id="fdvInput" name="fdv" type="number" value="200" min="0" step="10" inputmode="decimal" autocomplete="off" />
-                  <span class="input-suffix">M</span>
-                </span>
-              </label>
-
-              <label class="field" for="airdropInput">
-                <span class="label-row"><span data-i18n="airdropRatio">空投比例</span><span class="field-hint">SUPPLY</span></span>
-                <span class="input-shell compact">
-                  <input id="airdropInput" name="airdrop" type="number" value="5" min="0" max="100" step="0.5" inputmode="decimal" autocomplete="off" />
-                  <span class="input-suffix">%</span>
-                </span>
-              </label>
-
-              <label class="field" for="growthInput">
-                <span class="label-row"><span data-i18n="growthToTge">全网积分每日复利增幅</span><span class="field-hint">DAILY</span></span>
-                <span class="input-shell compact">
-                  <input id="growthInput" name="growth" type="number" value="2" min="0" max="100" step="0.1" inputmode="decimal" autocomplete="off" />
-                  <span class="input-suffix">%</span>
-                </span>
-              </label>
-
-              <label class="field" for="tgeInput">
-                <span class="label-row"><span data-i18n="tgeDate">TGE 时间</span><span class="field-hint">DATE</span></span>
-                <span class="input-shell compact date-shell">
-                  <input id="tgeInput" name="tge" type="date" value="2026-12-31" autocomplete="off" />
-                </span>
-              </label>
-
-              <label class="boost-toggle" for="boostInput">
-                <span>
-                  <strong>20% Boost</strong>
-                  <small data-i18n="referralBoost">邀请码加成</small>
-                </span>
-                <input id="boostInput" name="boost" type="checkbox" checked />
-                <span class="toggle-track" aria-hidden="true"><span></span></span>
-              </label>
-            </div>
-
-            <p class="input-note" data-i18n="boostNote">若输入的积分已经包含邀请加成，请关闭 20% Boost。</p>
-          </form>
-
-          <section class="panel results-panel" aria-labelledby="result-title">
-            <div class="result-label" id="result-title" data-i18n="estimatedValue">预估空投价值</div>
-            <div class="result-value" id="estimatedValue"><span>$</span>0</div>
-            <div class="result-caption">ESTIMATED AIRDROP VALUE</div>
-
-            <dl class="result-breakdown">
-              <div>
-                <dt data-i18n="effectivePoints">有效积分</dt>
-                <dd id="effectivePoints">0</dd>
-              </div>
-              <div>
-                <dt data-i18n="estimatedShare">预计全网占比</dt>
-                <dd id="estimatedShare">0%</dd>
-              </div>
-              <div>
-                <dt data-i18n="poolValue">空投池价值</dt>
-                <dd id="poolValue">$0</dd>
-              </div>
-              <div>
-                <dt data-i18n="millionPointValue">每百万积分估值</dt>
-                <dd id="millionPointValue">$0</dd>
-              </div>
-            </dl>
-
-            <div class="formula-box">
-              <span data-i18n="formulaLabel">计算公式</span>
-              <code data-i18n="formula">FDV × 空投比例 × 有效积分 ÷ [全网积分 × (1 + 日增幅)^天数]</code>
-            </div>
-          </section>
-        </div>
-
-        <div class="market-strip">
-          <div>
-            <span data-i18n="marketTotal">官方总 Coordinates</span>
-            <strong id="totalPoints">—</strong>
-          </div>
-          <div>
-            <span data-i18n="marketProjected">复利至 TGE 总量</span>
-            <strong id="projectedPoints">—</strong>
-          </div>
-          <div>
-            <span data-i18n="marketTge">TGE 日期</span>
-            <strong id="tgeSummary">2026.12.31</strong>
-          </div>
-          <div>
-            <span data-i18n="marketWallets">参与钱包</span>
-            <strong id="totalWallets">—</strong>
-          </div>
-          <div>
-            <span data-i18n="marketUpdated">数据更新时间</span>
-            <strong id="updatedAt">—</strong>
-          </div>
-        </div>
       <section class="earn-section" id="earn" aria-labelledby="earn-title">
         <div class="earn-heading">
           <div>
@@ -299,11 +182,68 @@
               <input id="strategyBoostInput" name="strategyBoost" type="checkbox" checked />
               <span class="toggle-track" aria-hidden="true"><span></span></span>
             </label>
+            <div class="valuation-settings"><h4 data-i18n="parameters">估算参数</h4>            <label class="field field-primary" for="pointsInput">
+              <span class="label-row">
+                <span data-i18n="yourPoints">你的 Coordinates</span>
+                <span class="field-hint">POINTS</span>
+              </span>
+              <span class="input-shell">
+                <input id="pointsInput" name="points" type="number" value="1000000" min="0" step="1000" inputmode="decimal" autocomplete="off" />
+                <span class="input-suffix">PTS</span>
+              </span>
+            </label>
+
+            <div class="field-grid">
+              <label class="field" for="fdvInput">
+                <span class="label-row"><span>FDV</span><span class="field-hint">USD · M</span></span>
+                <span class="input-shell compact">
+                  <span class="input-prefix">$</span>
+                  <input id="fdvInput" name="fdv" type="number" value="200" min="0" step="10" inputmode="decimal" autocomplete="off" />
+                  <span class="input-suffix">M</span>
+                </span>
+              </label>
+
+              <label class="field" for="airdropInput">
+                <span class="label-row"><span data-i18n="airdropRatio">空投比例</span><span class="field-hint">SUPPLY</span></span>
+                <span class="input-shell compact">
+                  <input id="airdropInput" name="airdrop" type="number" value="5" min="0" max="100" step="0.5" inputmode="decimal" autocomplete="off" />
+                  <span class="input-suffix">%</span>
+                </span>
+              </label>
+
+              <label class="field" for="growthInput">
+                <span class="label-row"><span data-i18n="growthToTge">全网积分每日复利增幅</span><span class="field-hint">DAILY</span></span>
+                <span class="input-shell compact">
+                  <input id="growthInput" name="growth" type="number" value="2" min="0" max="100" step="0.1" inputmode="decimal" autocomplete="off" />
+                  <span class="input-suffix">%</span>
+                </span>
+              </label>
+
+              <label class="field" for="tgeInput">
+                <span class="label-row"><span data-i18n="tgeDate">TGE 时间</span><span class="field-hint">DATE</span></span>
+                <span class="input-shell compact date-shell">
+                  <input id="tgeInput" name="tge" type="date" value="2026-12-31" autocomplete="off" />
+                </span>
+              </label>
+
+              <label class="boost-toggle" for="boostInput">
+                <span>
+                  <strong>20% Boost</strong>
+                  <small data-i18n="referralBoost">邀请码加成</small>
+                </span>
+                <input id="boostInput" name="boost" type="checkbox" checked />
+                <span class="toggle-track" aria-hidden="true"><span></span></span>
+              </label>
+            </div>
+
+            <p class="input-note" data-i18n="boostNote">若输入的积分已经包含邀请加成，请关闭 20% Boost。</p>
+</div>
             <p class="strategy-source-note" id="strategyApyNote" aria-live="polite">—</p>
           </form>
 
           <section class="strategy-results" aria-labelledby="strategy-result-title">
             <span class="strategy-kicker" id="strategy-result-title" data-i18n="strategyResultTitle">TGE 预计收益</span>
+            <div class="total-apy-card"><span data-i18n="totalApy">总 APY · 积分 + 底息</span><strong id="totalApy">—</strong><small data-i18n="totalApyNote">按至 TGE 的总净回报复利年化；不含已有积分，非保证收益。</small></div>
             <div class="strategy-profit" id="strategyProfit">$0</div>
             <span class="strategy-profit-caption" data-i18n="strategyProfitCaption">按 APY 日化复利估算</span>
             <div class="strategy-points-highlight">
@@ -311,7 +251,7 @@
               <strong id="strategyPoints">0 PTS</strong>
               <small id="strategyPointsRateNote">每 $1 每日 1 Coordinates，再乘策略倍率</small>
             </div>
-            <dl class="strategy-breakdown"><div><dt data-i18n="strategyYield"></dt><dd id="strategyYield">—</dd></div><div><dt data-i18n="strategyAirdrop"></dt><dd id="strategyAirdrop">—</dd></div><div><dt data-i18n="combinedAirdrop"></dt><dd id="combinedAirdrop">—</dd></div><div><dt data-i18n="sharedPointPrice"></dt><dd id="sharedPointPrice">—</dd></div>
+            <dl class="strategy-breakdown"><div><dt data-i18n="periodReturn">期间总回报率</dt><dd id="periodReturn">—</dd></div><div><dt data-i18n="strategyYield"></dt><dd id="strategyYield">—</dd></div><div><dt data-i18n="strategyAirdrop"></dt><dd id="strategyAirdrop">—</dd></div><div><dt data-i18n="combinedAirdrop"></dt><dd id="combinedAirdrop">—</dd></div><div><dt data-i18n="sharedPointPrice"></dt><dd id="sharedPointPrice">—</dd></div>
               <div><dt data-i18n="strategyTotal">TGE 预计总额</dt><dd id="strategyTotal">$0</dd></div>
               <div><dt data-i18n="strategyDailyPoints">预计每日积分</dt><dd id="strategyDailyPoints">0 PTS</dd></div>
               <div><dt data-i18n="strategyDays">计息天数</dt><dd id="strategyDays">0</dd></div>
@@ -322,6 +262,29 @@
               <span data-i18n="strategyOpen">打开所选策略</span><span aria-hidden="true">↗</span>
             </a>
           </section>
+        </div>
+
+        <div class="market-strip">
+          <div>
+            <span data-i18n="marketTotal">官方总 Coordinates</span>
+            <strong id="totalPoints">—</strong>
+          </div>
+          <div>
+            <span data-i18n="marketProjected">复利至 TGE 总量</span>
+            <strong id="projectedPoints">—</strong>
+          </div>
+          <div>
+            <span data-i18n="marketTge">TGE 日期</span>
+            <strong id="tgeSummary">2026.12.31</strong>
+          </div>
+          <div>
+            <span data-i18n="marketWallets">参与钱包</span>
+            <strong id="totalWallets">—</strong>
+          </div>
+          <div>
+            <span data-i18n="marketUpdated">数据更新时间</span>
+            <strong id="updatedAt">—</strong>
+          </div>
         </div>
 
         <div class="earn-grid">
@@ -403,6 +366,6 @@
       </div>
     </footer>
 
-    <script src="./app.js?v=earn-20260908" defer></script>
+    <script src="./app.js?v=unified-20260908" defer></script>
   </body>
 </html>

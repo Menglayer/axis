@@ -79,11 +79,11 @@ const TRANSLATIONS = {
     boostCta: "立即参与",
     parameters: "估算参数",
     reset: "恢复默认",
-    yourPoints: "你的 Coordinates",
+    yourPoints: "已有 Coordinates",
     airdropRatio: "空投比例",
     growthToTge: "全网积分每日复利增幅",
     tgeDate: "TGE 时间",
-    referralBoost: "邀请码加成",
+    referralBoost: "已有积分的邀请码加成",
     boostNote: "若输入的积分已经包含邀请加成，请关闭 20% Boost。",
     estimatedValue: "预估空投价值",
     effectivePoints: "有效积分",
@@ -98,7 +98,7 @@ const TRANSLATIONS = {
     marketWallets: "参与钱包",
     marketUpdated: "数据更新时间",
     earnTitle: "积分估值 × Earn 收益",
-    earnCopy: "共用上方 FDV、空投比例、TGE 与积分价格，直接计算策略综合收益。",
+    earnCopy: "在同一个计算器内调整投入、积分估值与策略参数，查看综合收益。",
     earnCta: "查看实时 Earn",
     earnGroupAxis: "USDx 产品",
     earnGroupCurve: "Curve 池",
@@ -149,6 +149,9 @@ const TRANSLATIONS = {
     strategyAirdrop: "新增积分空投估值",
     combinedAirdrop: "已有 + 新增积分空投",
     sharedPointPrice: "统一积分估值",
+    totalApy: "总 APY · 积分 + 底息",
+    totalApyNote: "按至 TGE 的总净回报复利年化；不含已有积分，非保证收益。",
+    periodReturn: "期间总回报率",
   },
   en: {
     documentTitle: "AXIS Airdrop Calculator",
@@ -168,11 +171,11 @@ const TRANSLATIONS = {
     boostCta: "Join now",
     parameters: "Estimate settings",
     reset: "Reset defaults",
-    yourPoints: "Your Coordinates",
+    yourPoints: "Existing Coordinates",
     airdropRatio: "Airdrop allocation",
     growthToTge: "Daily compound points growth",
     tgeDate: "TGE date",
-    referralBoost: "Referral bonus",
+    referralBoost: "Referral boost on existing points",
     boostNote: "Turn off the 20% Boost if your input already includes the referral bonus.",
     estimatedValue: "Estimated airdrop value",
     effectivePoints: "Effective points",
@@ -187,7 +190,7 @@ const TRANSLATIONS = {
     marketWallets: "Participating wallets",
     marketUpdated: "Data updated",
     earnTitle: "Points value × Earn returns",
-    earnCopy: "Shared FDV, allocation, TGE and point valuation power the combined return.",
+    earnCopy: "Adjust investment, points valuation and strategy settings in one calculator.",
     earnCta: "View live Earn",
     earnGroupAxis: "USDx products",
     earnGroupCurve: "Curve pools",
@@ -238,6 +241,9 @@ const TRANSLATIONS = {
     strategyAirdrop: "New points airdrop value",
     combinedAirdrop: "Existing + new points airdrop",
     sharedPointPrice: "Shared points value",
+    totalApy: "Total APY · points + yield",
+    totalApyNote: "Compound annualized net return through TGE; excludes existing points. An estimate, not guaranteed yield.",
+    periodReturn: "Total period return",
   },
 };
 
@@ -245,20 +251,13 @@ const TRANSLATIONS = {
 
 
 const elements = {
-  form: document.querySelector("#calculatorForm"),
   points: document.querySelector("#pointsInput"),
   fdv: document.querySelector("#fdvInput"),
   airdrop: document.querySelector("#airdropInput"),
   growth: document.querySelector("#growthInput"),
   tge: document.querySelector("#tgeInput"),
   boost: document.querySelector("#boostInput"),
-  reset: document.querySelector("#resetButton"),
   languageToggle: document.querySelector("#languageToggle"),
-  estimatedValue: document.querySelector("#estimatedValue"),
-  effectivePoints: document.querySelector("#effectivePoints"),
-  estimatedShare: document.querySelector("#estimatedShare"),
-  poolValue: document.querySelector("#poolValue"),
-  millionPointValue: document.querySelector("#millionPointValue"),
   totalPoints: document.querySelector("#totalPoints"),
   projectedPoints: document.querySelector("#projectedPoints"),
   tgeSummary: document.querySelector("#tgeSummary"),
@@ -481,29 +480,10 @@ function getTgeSummary({ dateLabel, diffDays }) {
 }
 
 function calculate() {
-  const points = Math.max(0, numberValue(elements.points));
-  const fdv = Math.max(0, numberValue(elements.fdv));
-  const airdrop = Math.min(100, Math.max(0, numberValue(elements.airdrop)));
   const growth = Math.min(100, Math.max(0, numberValue(elements.growth)));
-  const boostMultiplier = elements.boost.checked ? 1.2 : 1;
   const tgeData = getTgeData();
   const compoundingDays = Math.max(0, tgeData.diffDays);
-
-  const effectivePoints = points * boostMultiplier;
-  const growthFactor = Math.pow(1 + growth / 100, compoundingDays);
-  const projectedTotalPoints = Math.max(1, stats.totalPoints * growthFactor);
-  const share = Math.min(1, effectivePoints / projectedTotalPoints);
-  const pool = fdv * 1_000_000 * (airdrop / 100);
-  const estimatedValue = pool * share;
-  const perMillion = pool * (1_000_000 / projectedTotalPoints);
-
-  elements.estimatedValue.innerHTML = `<span>$</span>${integerNumber(estimatedValue).replace(/^\$/, "")}`;
-  elements.effectivePoints.textContent = compactNumber(effectivePoints);
-  elements.estimatedShare.textContent = `${(share * 100).toLocaleString("en-US", {
-    maximumFractionDigits: share < 0.0001 ? 6 : 4,
-  })}%`;
-  elements.poolValue.textContent = currency(pool);
-  elements.millionPointValue.textContent = currency(perMillion);
+  const projectedTotalPoints = Math.max(1, stats.totalPoints * Math.pow(1 + growth / 100, compoundingDays));
   elements.totalPoints.textContent = compactNumber(stats.totalPoints);
   elements.projectedPoints.textContent = compactNumber(projectedTotalPoints);
   elements.tgeSummary.textContent = getTgeSummary(tgeData);
@@ -542,6 +522,11 @@ function calculateStrategy() {
   const airdrop = Math.min(pool, totalPoints * pointPrice);
   const existing = Math.min(pool, Math.max(0, numberValue(elements.points)) * (elements.boost.checked ? 1.2 : 1) * pointPrice);
   const combined = Math.min(pool, existing + airdrop);
+  // Points are valued at TGE, so annualize over the full wait to TGE.
+  const annualized = amount > 0 && horizon > 0 && days > 0 && ready
+    ? Math.expm1(Math.log((total + airdrop) / amount) * 365 / horizon) * 100 : NaN;
+  document.querySelector('#totalApy').textContent = Number.isFinite(annualized) ? annualized.toLocaleString('en-US', { maximumFractionDigits: 2 }) + '%' : '—';
+  document.querySelector('#periodReturn').textContent = amount > 0 && days > 0 && ready ? ((profit + airdrop) / amount * 100).toLocaleString('en-US', { maximumFractionDigits: 2 }) + '%' : '—';
   elements.strategyProfit.textContent = ready ? currency(profit + airdrop) : '—';
   document.querySelector('#strategyYield').textContent = ready ? currency(profit) : '—';
   document.querySelector('#strategyAirdrop').textContent = ready ? currency(airdrop) : '—';
@@ -632,17 +617,18 @@ async function loadStats() {
   calculate();
 }
 
-elements.form.addEventListener("input", calculate);
-elements.reset.addEventListener("click", resetDefaults);
+
+
 elements.strategyForm.addEventListener("input", (event) => {
   if (event.target !== elements.strategySelect) strategyInputsDirty = true;
-  calculateStrategy();
+  calculate();
 });
 elements.strategySelect.addEventListener("change", () => {
   strategyInputsDirty = true;
   applySelectedStrategyDefaults();
 });
-elements.strategyReset.addEventListener("click", resetStrategyDefaults);
+elements.strategyReset.addEventListener("click", () => { resetDefaults(); resetStrategyDefaults(); });
+elements.strategyForm.addEventListener("submit", event => event.preventDefault());
 elements.languageToggle.addEventListener("click", () => {
   language = language === "zh" ? "en" : "zh";
   try {
