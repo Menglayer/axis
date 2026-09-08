@@ -71,10 +71,12 @@ npm run refresh:data
 
 `npm run refresh:pendle` 从 Pendle 公开 API 更新两个市场；`npm run refresh:data` 同时更新 AXIS 和 Pendle。无自动定时任务。
 
-YT 数量 = 投入 / 实际 YT 美元价格；积分名义本金 = YT 数量 × accountingAsset 美元价格。YT 收益估算 = 名义本金 × [1 − (1 + 底层 APY)^(-天数 / 365)] × 95%，扣除全部买入成本；提前结束不计卖出残值。无底层收益的 USDx YT 资金净收益为负投入。
+YT 数量 = 投入 / 实际 YT 美元价格；积分名义本金 = YT 数量 × accountingAsset 美元价格。YT 收益估算 = 名义本金 × [(1 + 底层利息 APY)^(天数 / 365) − 1 + 奖励 APR × 天数 / 365] × 95%，扣除全部买入成本；提前结束不计卖出残值。无底层收益的 USDx YT 资金净收益为负投入。
 
 策略收益截至策略结束、TGE、市场到期三者最早日期。新增积分使用统一 TGE 积分价格，已含策略 Boost，不重复叠加。综合净收益 = 资金净收益 + 新增积分空投估值。已有积分单独合并展示，不计作本次投资回报。APY 为当前快照延续假设，未计交易费、滑点与价格变动。
 
 ## 单一计算器与总 APY
 
 原积分估值表单已并入策略表单，统一重置。总 APY = [(预计回收金额含新增积分空投 / 投入)^(365 / 距 TGE 天数) − 1] × 100%。策略早于 TGE 结束时，底息在策略结束停止，年化仍包含等候空投的时间。已有积分不计入投资回报；YT 已扣买入成本。金额或期限为零时显示 —。此为情景复利年化，不代表积分奖励可重复投资。
+
+收益时间精确至秒，日期按 UTC 00:00 处理，与 Pendle 到期时间一致。YT 官方预计 APY 使用 ytFloatingApy，与 underlyingApy 区分。公式依据 https://docs.pendle.finance/pendle-v2/ProtocolMechanics/PendleMarketAPYCalculation 。

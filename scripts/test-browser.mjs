@@ -7,7 +7,21 @@ const server=createServer((req,res)=>{const path='public'+new URL(req.url,'http:
 const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
 try{
 const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
-await page.goto('http://localhost:4186');await page.waitForFunction(()=>document.querySelector('#strategySelect').options.length===11);
+const markets = JSON.parse(fs.readFileSync('public/data/pendle-markets.json','utf8')).markets;
+await page.clock.install({time:new Date(markets[0].priceUpdatedAt)});
+await page.goto(process.env.AXIS_TEST_URL || 'http://localhost:4186');await page.waitForFunction(()=>document.querySelector('#strategySelect').options.length===11);
+for (const [i,token] of ['susdx','usdx'].entries()) {
+  const market = markets[i];
+  await page.selectOption('#strategySelect', 'pendle-'+token+'-yt');
+  await page.fill('#tgeInput', market.expiry.slice(0,10)); await page.fill('#fdvInput','0');
+  const actual = parseFloat((await page.textContent('#totalApy')).replaceAll(',',''));
+  assert.ok(Math.abs(actual - market.ytApy * 100) < .02, 'YT APY must reconcile to Pendle');
+  await page.selectOption('#strategySelect', 'pendle-'+token+'-pt');
+  assert.ok(Math.abs(parseFloat(await page.textContent('#totalApy')) - market.ptApy * 100) < .01, 'PT APY must reconcile to Pendle');
+  await page.selectOption('#strategySelect', 'pendle-'+token+'-lp');
+  assert.ok(Math.abs(parseFloat(await page.textContent('#totalApy')) - market.lpApy * 100) < .01, 'LP APY must reconcile to Pendle');
+}
+await page.click('#strategyResetButton');
 assert.equal(await page.locator('form').count(), 1);
 assert.equal(await page.locator('#strategyForm #fdvInput').count(), 1);
 await page.selectOption('#strategySelect','origin-vault');
