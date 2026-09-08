@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check public/app.js && node --check scripts/fetch-axis-stats.mjs && node scripts/validate.mjs",
-    "refresh:data": "node scripts/fetch-axis-stats.mjs"
+    "check": "node --check public/app.js && node --check scripts/fetch-axis-stats.mjs && node scripts/validate.mjs && node --check scripts/fetch-pendle.mjs",
+    "refresh:data": "node scripts/fetch-axis-stats.mjs && node scripts/fetch-pendle.mjs",
+    "refresh:pendle": "node scripts/fetch-pendle.mjs"
   },
   "devDependencies": {
     "playwright-core": "^1.62.1"

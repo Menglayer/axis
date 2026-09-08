@@ -97,8 +97,8 @@ const TRANSLATIONS = {
     marketTge: "TGE 日期",
     marketWallets: "参与钱包",
     marketUpdated: "数据更新时间",
-    earnTitle: "官方 Earn 倍率",
-    earnCopy: "不同持仓方式获得不同 Coordinates 倍率；下列数据来自 AXIS Earn 页面。",
+    earnTitle: "积分估值 × Earn 收益",
+    earnCopy: "共用上方 FDV、空投比例、TGE 与积分价格，直接计算策略综合收益。",
     earnCta: "查看实时 Earn",
     earnGroupAxis: "USDx 产品",
     earnGroupCurve: "Curve 池",
@@ -115,22 +115,22 @@ const TRANSLATIONS = {
     strategyTitle: "策略收益计算器",
     strategyLabel: "当前策略",
     strategyAmount: "投入金额",
-    strategyApy: "预估 APY",
+    strategyApy: "采用 APY / YT 底层 APY",
     strategyMultiplier: "Coordinates 倍率",
-    strategyTge: "TGE 时间",
+    strategyTge: "策略结束日期",
     ytExpiryHint: "YT 到期日",
     strategyBoost: "应用邀请码倍率加成",
-    strategyResultTitle: "TGE 预计收益",
-    strategyProfitCaption: "按 APY 日化复利估算",
+    strategyResultTitle: "预计净收益 · 含新增积分空投",
+    strategyProfitCaption: "资金收益 + 新增积分估值 − YT 买入成本（如适用）",
     strategyPointsTitle: "TGE 预计积分收益",
     strategyPointsRateNote: "每 $1 每日 {rate} Coordinates，再乘策略倍率",
-    strategyTotal: "TGE 预计总额",
+    strategyTotal: "预计回收金额 · 含新增空投",
     strategyDailyPoints: "预计每日积分",
     strategyDays: "计息天数",
     strategyEffectiveApy: "采用 APY",
     strategyEffectiveMultiplier: "含 Boost 倍率",
     strategyOpen: "打开所选策略",
-    strategyOfficialApy: "已带入 AXIS 当前展示的 APY，可自行修改。",
+    strategyOfficialApy: "已带入 AXIS 当前展示 APY；按此收益率不变估算。",
     strategyVariableApy: "AXIS 未提供固定 APY；YT 收益取决于市场价格与到期前收益，请输入你的预期 APY。",
     strategyCoordinatesApy: "该策略仅展示 Coordinates 收益，APY 默认按 0% 处理，可自行修改。",
     strategyUnquotedApy: "AXIS 暂未展示该策略 APY，默认按 0% 处理，可自行修改。",
@@ -144,6 +144,11 @@ const TRANSLATIONS = {
     daysLeft: "{days} 天后",
     tgeToday: "今天",
     tgePassed: "已到达",
+    ytPrice: "YT 实际单价",
+    strategyYield: "资金净收益",
+    strategyAirdrop: "新增积分空投估值",
+    combinedAirdrop: "已有 + 新增积分空投",
+    sharedPointPrice: "统一积分估值",
   },
   en: {
     documentTitle: "AXIS Airdrop Calculator",
@@ -181,8 +186,8 @@ const TRANSLATIONS = {
     marketTge: "TGE date",
     marketWallets: "Participating wallets",
     marketUpdated: "Data updated",
-    earnTitle: "Official Earn multipliers",
-    earnCopy: "Coordinates rates vary by position. The figures below come from the AXIS Earn page.",
+    earnTitle: "Points value × Earn returns",
+    earnCopy: "Shared FDV, allocation, TGE and point valuation power the combined return.",
     earnCta: "View live Earn",
     earnGroupAxis: "USDx products",
     earnGroupCurve: "Curve pools",
@@ -199,16 +204,16 @@ const TRANSLATIONS = {
     strategyTitle: "Strategy yield calculator",
     strategyLabel: "Current strategy",
     strategyAmount: "Principal",
-    strategyApy: "Estimated APY",
+    strategyApy: "APY used / YT underlying APY",
     strategyMultiplier: "Coordinates multiplier",
-    strategyTge: "TGE date",
+    strategyTge: "Strategy end date",
     ytExpiryHint: "YT expiry",
     strategyBoost: "Apply referral multiplier boost",
-    strategyResultTitle: "Estimated yield at TGE",
-    strategyProfitCaption: "Estimated using APY converted to a daily rate",
+    strategyResultTitle: "Estimated net return · including new points",
+    strategyProfitCaption: "Capital yield + new points value − YT purchase cost (if applicable)",
     strategyPointsTitle: "Estimated Coordinates at TGE",
     strategyPointsRateNote: "{rate} Coordinates per $1 per day, then multiplied by the strategy rate",
-    strategyTotal: "Estimated value at TGE",
+    strategyTotal: "Estimated proceeds · including new airdrop",
     strategyDailyPoints: "Estimated daily Coordinates",
     strategyDays: "Earning days",
     strategyEffectiveApy: "APY used",
@@ -228,8 +233,16 @@ const TRANSLATIONS = {
     daysLeft: "{days} days left",
     tgeToday: "Today",
     tgePassed: "Reached",
+    ytPrice: "YT market price",
+    strategyYield: "Net capital return",
+    strategyAirdrop: "New points airdrop value",
+    combinedAirdrop: "Existing + new points airdrop",
+    sharedPointPrice: "Shared points value",
   },
 };
+
+
+
 
 const elements = {
   form: document.querySelector("#calculatorForm"),
@@ -276,6 +289,7 @@ const elements = {
   metaDescription: document.querySelector('meta[name="description"]'),
 };
 
+let pendleMarkets = [];
 let stats = FALLBACK_STATS;
 let dataState = "loadingData";
 let language = getStoredLanguage();
@@ -339,7 +353,7 @@ function formatDate(timestamp) {
 function formatEarnApy(apy) {
   const copy = TRANSLATIONS[language];
   if (apy?.type === "rate" && typeof apy.value === "string") {
-    return `${apy.value} APY`;
+    return `${Number.parseFloat(apy.value).toFixed(2)}% APY`;
   }
   if (apy?.type === "coordinates-only") return copy.apyCoordinatesOnly;
   if (apy?.type === "variable") return copy.apyVariable;
@@ -347,9 +361,18 @@ function formatEarnApy(apy) {
 }
 
 function getEarnOpportunities() {
-  return Array.isArray(stats.earnOpportunities)
-    ? stats.earnOpportunities
-    : FALLBACK_STATS.earnOpportunities;
+  const base = Array.isArray(stats.earnOpportunities) ? stats.earnOpportunities : FALLBACK_STATS.earnOpportunities;
+  const result = base.map(item => {
+    const market = pendleMarkets.find(m => item.url?.includes(m.address));
+    if (!market) return item;
+    const apy = item.id.endsWith("-lp") ? market.lpApy : market.underlyingApy;
+    return { ...item, market, apy: { type: "rate", value: `${apy * 100}%` } };
+  });
+  for (const market of pendleMarkets) {
+    const token = market.address.startsWith("0x5e57") ? "susdx" : "usdx";
+    result.push({ id: `pendle-${token}-pt`, multiplier: 0, market, apy: { type: "rate", value: `${market.ptApy * 100}%` }, tge: market.expiry.slice(0,10), url: `https://app.pendle.finance/trade/markets/${market.address}/swap?view=pt&chain=ethereum` });
+  }
+  return result;
 }
 
 function getStrategy() {
@@ -379,7 +402,7 @@ function renderStrategyOptions() {
     ...getEarnOpportunities().map((opportunity) => {
       const option = document.createElement("option");
       option.value = opportunity.id;
-      option.textContent = `${labels[opportunity.id] ?? opportunity.id} · ${opportunity.multiplier}x`;
+      option.textContent = `${labels[opportunity.id] ?? (opportunity.id === "pendle-susdx-pt" ? "Pendle · sUSDx PT" : opportunity.id === "pendle-usdx-pt" ? "Pendle · USDx PT" : opportunity.id)} · ${opportunity.multiplier}x`;
       return option;
     }),
   );
@@ -391,11 +414,12 @@ function renderStrategyOptions() {
 function applySelectedStrategyDefaults() {
   const opportunity = getStrategy();
   if (!opportunity) return;
-  elements.strategyApy.value = getStrategyApyValue(opportunity);
+  elements.strategyApy.value = getStrategyApyValue(opportunity).toFixed(4);
   elements.strategyMultiplier.value = opportunity.multiplier;
   elements.strategyTge.value = opportunity.tge || stats.strategyTge || DEFAULTS.strategyTge;
   elements.strategyLink.href = opportunity.url || stats.earnSource || FALLBACK_STATS.earnSource;
   elements.strategyApyNote.textContent = getStrategyApyNote(opportunity);
+  updateStrategyContext();
   calculateStrategy();
 }
 
@@ -403,7 +427,17 @@ function updateStrategyContext() {
   const opportunity = getStrategy();
   if (!opportunity) return;
   elements.strategyLink.href = opportunity.url || stats.earnSource || FALLBACK_STATS.earnSource;
-  elements.strategyApyNote.textContent = getStrategyApyNote(opportunity);
+  const yt = opportunity.id.endsWith('-yt');
+  const market = opportunity.market;
+  document.querySelector('#ytPriceField').hidden = !yt;
+  elements.strategyApy.readOnly = Boolean(market);
+  elements.strategyApy.closest('label').querySelector('.field-hint').textContent = market ? 'PENDLE' : 'AXIS / EDITABLE';
+  document.querySelector('#ytPriceInput').value = market?.ytPrice ?? '';
+  elements.strategyTge.max = market?.expiry.slice(0,10) ?? '';
+  const zh = language === 'zh';
+  elements.strategyApyNote.textContent = market
+    ? (zh ? 'Pendle 市场快照 · ' : 'Pendle snapshot · ') + formatDate(market.updatedAt) + (yt ? (zh ? '；YT 到期归零，按实际价格购买，底层收益按当前 APY 估算，扣除 5% 收益费；提前结束不计 YT 卖出残值，未计交易费及滑点。' : '; YT expires at zero. Current price and underlying APY, less 5% yield fee; excludes early-exit resale value, trading fees/slippage.') : (zh ? '；APY 按当前市场估算，PT 积分未确认，按 0x。LP 使用未加成 APY。' : '; Current APY estimate. PT points unconfirmed: 0x. LP uses unboosted APY.'))
+    : getStrategyApyNote(opportunity);
 }
 
 function renderEarnData() {
@@ -414,7 +448,7 @@ function renderEarnData() {
     const opportunity = byId.get(row.dataset.earnId);
     if (!opportunity) return;
     row.querySelector("[data-earn-multiplier]").textContent = `${opportunity.multiplier}x`;
-    row.querySelector("[data-earn-apy]").textContent = formatEarnApy(opportunity.apy);
+    row.querySelector("[data-earn-apy]").textContent = opportunity.id.endsWith("-yt") && opportunity.market ? `${opportunity.market.ytPrice.toFixed(5)} / YT` : formatEarnApy(opportunity.apy);
   });
   elements.earnUpdatedAt.textContent = formatDate(stats.earnUpdatedAt ?? stats.timestamp);
 }
@@ -475,32 +509,51 @@ function calculate() {
   elements.tgeSummary.textContent = getTgeSummary(tgeData);
   elements.totalWallets.textContent = integerNumber(stats.totalWallets);
   elements.updatedAt.textContent = formatDate(stats.timestamp);
+  calculateStrategy();
 }
 
 function calculateStrategy() {
   const amount = Math.max(0, numberValue(elements.strategyAmount));
   const apy = Math.max(0, numberValue(elements.strategyApy));
   const multiplier = Math.max(0, numberValue(elements.strategyMultiplier));
-  const days = Math.max(0, getDateData(elements.strategyTge, DEFAULTS.strategyTge).diffDays);
+  const opportunity = getStrategy();
+  const yt = opportunity?.id.endsWith('-yt');
+  const market = opportunity?.market;
+  const horizon = Math.max(0, getTgeData().diffDays);
+  const expiryDays = market ? Math.max(0, (Date.parse(market.expiry) - Date.now()) / 86400000) : Infinity;
+  const days = Math.min(horizon, Math.max(0, getDateData(elements.strategyTge, DEFAULTS.strategyTge).diffDays), expiryDays);
+  const ytPrice = numberValue(document.querySelector('#ytPriceInput'));
+  const ready = !opportunity?.id.startsWith('pendle-') || Boolean(market);
+  const exposure = yt && market && ytPrice > 0 ? amount / ytPrice * market.accountingPrice : amount;
   const dailyRate = Math.pow(1 + apy / 100, 1 / 365) - 1;
-  const total = amount * Math.pow(1 + dailyRate, days);
+  const total = yt ? exposure * (1 - Math.pow(1 + apy / 100, -days / 365)) * 0.95 : amount * Math.pow(1 + dailyRate, days);
   const profit = total - amount;
   const effectiveMultiplier = multiplier * (elements.strategyBoost.checked ? 1.2 : 1);
   const configuredBaseRate = Number(stats.pointsPerUsdPerDay);
   const pointsPerUsdPerDay = Number.isFinite(configuredBaseRate) && configuredBaseRate > 0
     ? configuredBaseRate
     : FALLBACK_STATS.pointsPerUsdPerDay;
-  const dailyPoints = amount * pointsPerUsdPerDay * effectiveMultiplier;
+  const dailyPoints = exposure * pointsPerUsdPerDay * effectiveMultiplier;
   const totalPoints = dailyPoints * days;
 
-  elements.strategyProfit.textContent = currency(profit);
+  const pool = Math.max(0, numberValue(elements.fdv)) * 1e6 * Math.min(100, Math.max(0, numberValue(elements.airdrop))) / 100;
+  const network = Math.max(1, stats.totalPoints * Math.pow(1 + Math.min(100, Math.max(0, numberValue(elements.growth))) / 100, horizon));
+  const pointPrice = pool / network;
+  const airdrop = Math.min(pool, totalPoints * pointPrice);
+  const existing = Math.min(pool, Math.max(0, numberValue(elements.points)) * (elements.boost.checked ? 1.2 : 1) * pointPrice);
+  const combined = Math.min(pool, existing + airdrop);
+  elements.strategyProfit.textContent = ready ? currency(profit + airdrop) : '—';
+  document.querySelector('#strategyYield').textContent = ready ? currency(profit) : '—';
+  document.querySelector('#strategyAirdrop').textContent = ready ? currency(airdrop) : '—';
+  document.querySelector('#combinedAirdrop').textContent = ready ? currency(combined) : '—';
+  document.querySelector('#sharedPointPrice').textContent = currency(pointPrice * 1e6) + ' / 1M PTS';
   elements.strategyPoints.textContent = `${compactNumber(totalPoints)} PTS`;
   elements.strategyDailyPoints.textContent = `${compactNumber(dailyPoints)} PTS`;
   elements.strategyPointsRateNote.textContent = TRANSLATIONS[language].strategyPointsRateNote.replace(
     "{rate}",
     pointsPerUsdPerDay.toLocaleString("en-US", { maximumFractionDigits: 4 }),
   );
-  elements.strategyTotal.textContent = currency(total);
+  elements.strategyTotal.textContent = ready ? currency(total + airdrop) : '—';
   elements.strategyDays.textContent = integerNumber(days);
   elements.strategyApySummary.textContent = `${apy.toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
   elements.strategyMultiplierSummary.textContent = `${effectiveMultiplier.toLocaleString("en-US", { maximumFractionDigits: 2 })}x`;
@@ -602,4 +655,13 @@ elements.languageToggle.addEventListener("click", () => {
 
 applyLanguage();
 resetStrategyDefaults();
-loadStats();
+async function loadPendle() {
+  try {
+    const response = await fetch('./data/pendle-markets.json?v=' + Date.now(), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Pendle snapshot unavailable');
+    const payload = await response.json();
+    pendleMarkets = payload.markets.filter(m => m.ytPrice > 0 && Number.isFinite(m.ptApy) && Number.isFinite(m.lpApy));
+    renderStrategyOptions(); renderEarnData(); applySelectedStrategyDefaults();
+  } catch (error) { console.warn(error); }
+}
+loadStats().then(loadPendle);

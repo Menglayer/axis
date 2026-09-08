@@ -1449,3 +1449,7 @@ button:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+[hidden] { display: none !important; }
+#calculator > .earn-section { margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--line); }
+input[readonly] { opacity: .7; }

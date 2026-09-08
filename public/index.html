@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=points-20260908" />
+    <link rel="stylesheet" href="./styles.css?v=earn-20260908" />
     <title>AXIS 空投计算器</title>
   </head>
   <body>
@@ -228,9 +228,7 @@
             <strong id="updatedAt">—</strong>
           </div>
         </div>
-      </section>
-
-      <section class="earn-section shell" id="earn" aria-labelledby="earn-title">
+      <section class="earn-section" id="earn" aria-labelledby="earn-title">
         <div class="earn-heading">
           <div>
             <span class="section-index">02</span>
@@ -271,6 +269,7 @@
                 </span>
               </label>
 
+              <label class="field" id="ytPriceField" for="ytPriceInput" hidden><span class="label-row" data-i18n="ytPrice">YT 实际单价</span><span class="input-shell compact"><span class="input-prefix">$</span><input id="ytPriceInput" type="number" min="0.000001" step="0.000001" readonly /></span></label>
               <label class="field" for="strategyApyInput">
                 <span class="label-row"><span data-i18n="strategyApy">预估 APY</span><span class="field-hint">EDITABLE</span></span>
                 <span class="input-shell compact">
@@ -312,7 +311,7 @@
               <strong id="strategyPoints">0 PTS</strong>
               <small id="strategyPointsRateNote">每 $1 每日 1 Coordinates，再乘策略倍率</small>
             </div>
-            <dl class="strategy-breakdown">
+            <dl class="strategy-breakdown"><div><dt data-i18n="strategyYield"></dt><dd id="strategyYield">—</dd></div><div><dt data-i18n="strategyAirdrop"></dt><dd id="strategyAirdrop">—</dd></div><div><dt data-i18n="combinedAirdrop"></dt><dd id="combinedAirdrop">—</dd></div><div><dt data-i18n="sharedPointPrice"></dt><dd id="sharedPointPrice">—</dd></div>
               <div><dt data-i18n="strategyTotal">TGE 预计总额</dt><dd id="strategyTotal">$0</dd></div>
               <div><dt data-i18n="strategyDailyPoints">预计每日积分</dt><dd id="strategyDailyPoints">0 PTS</dd></div>
               <div><dt data-i18n="strategyDays">计息天数</dt><dd id="strategyDays">0</dd></div>
@@ -356,6 +355,8 @@
 
           <article class="earn-group">
             <h3 data-i18n="earnGroupPendle">Pendle 市场</h3>
+            <div class="earn-row" data-earn-id="pendle-susdx-pt"><span>sUSDx PT</span><span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>0x</strong></span></div>
+            <div class="earn-row" data-earn-id="pendle-usdx-pt"><span>USDx PT</span><span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>0x</strong></span></div>
             <div class="earn-row" data-earn-id="pendle-susdx-yt">
               <span>sUSDx YT</span>
               <span class="earn-metrics"><small data-earn-apy>—</small><strong data-earn-multiplier>6x</strong></span>
@@ -381,6 +382,8 @@
         </div>
       </section>
 
+      </section>
+
       <section class="method shell" aria-labelledby="method-title">
         <span class="section-index">03</span>
         <div>
@@ -400,6 +403,6 @@
       </div>
     </footer>
 
-    <script src="./app.js?v=points-20260908" defer></script>
+    <script src="./app.js?v=earn-20260908" defer></script>
   </body>
 </html>
