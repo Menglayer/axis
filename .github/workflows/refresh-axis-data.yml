@@ -35,14 +35,14 @@ jobs:
       - name: Commit refreshed snapshot
         id: snapshot
         run: |
-          if git diff --quiet -- public/data/axis-stats.json; then
+          if git diff --quiet -- public/data/axis-stats.json public/data/pendle-markets.json; then
             echo "AXIS snapshot is unchanged."
             echo "updated=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/axis-stats.json
+          git add public/data/axis-stats.json public/data/pendle-markets.json
           git commit -m "chore: refresh AXIS points snapshot"
           git push
           echo "updated=true" >> "$GITHUB_OUTPUT"
