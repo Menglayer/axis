@@ -37,11 +37,14 @@ const STRATEGY_LABELS = {
 };
 
 const FALLBACK_STATS = {
-  totalPoints: 56_854_011_452.13343,
+  totalPoints: 56_863_778_618.03561,
   totalWallets: 2_033,
-  timestamp: "2026-09-08T07:05:08.074Z",
+  timestamp: "2026-09-08T07:40:45.961Z",
   source: "AXIS official API snapshot",
-  earnUpdatedAt: "2026-09-08T07:04:47.340Z",
+  pointsPerUsdPerDay: 1,
+  pointsRateSource: "https://api.axis.to/api/v1/points/campaigns",
+  pointsCampaign: "Origin Season 1",
+  earnUpdatedAt: "2026-09-08T07:40:25.365Z",
   earnSource: "https://app.axis.to/earn",
   strategyTge: "2026-12-03",
   earnOpportunities: [
@@ -119,7 +122,10 @@ const TRANSLATIONS = {
     strategyBoost: "应用邀请码倍率加成",
     strategyResultTitle: "TGE 预计收益",
     strategyProfitCaption: "按 APY 日化复利估算",
+    strategyPointsTitle: "TGE 预计积分收益",
+    strategyPointsRateNote: "每 $1 每日 {rate} Coordinates，再乘策略倍率",
     strategyTotal: "TGE 预计总额",
+    strategyDailyPoints: "预计每日积分",
     strategyDays: "计息天数",
     strategyEffectiveApy: "采用 APY",
     strategyEffectiveMultiplier: "含 Boost 倍率",
@@ -200,7 +206,10 @@ const TRANSLATIONS = {
     strategyBoost: "Apply referral multiplier boost",
     strategyResultTitle: "Estimated yield at TGE",
     strategyProfitCaption: "Estimated using APY converted to a daily rate",
+    strategyPointsTitle: "Estimated Coordinates at TGE",
+    strategyPointsRateNote: "{rate} Coordinates per $1 per day, then multiplied by the strategy rate",
     strategyTotal: "Estimated value at TGE",
+    strategyDailyPoints: "Estimated daily Coordinates",
     strategyDays: "Earning days",
     strategyEffectiveApy: "APY used",
     strategyEffectiveMultiplier: "Multiplier with Boost",
@@ -254,6 +263,9 @@ const elements = {
   strategyReset: document.querySelector("#strategyResetButton"),
   strategyApyNote: document.querySelector("#strategyApyNote"),
   strategyProfit: document.querySelector("#strategyProfit"),
+  strategyPoints: document.querySelector("#strategyPoints"),
+  strategyDailyPoints: document.querySelector("#strategyDailyPoints"),
+  strategyPointsRateNote: document.querySelector("#strategyPointsRateNote"),
   strategyTotal: document.querySelector("#strategyTotal"),
   strategyDays: document.querySelector("#strategyDays"),
   strategyApySummary: document.querySelector("#strategyApySummary"),
@@ -474,8 +486,20 @@ function calculateStrategy() {
   const total = amount * Math.pow(1 + dailyRate, days);
   const profit = total - amount;
   const effectiveMultiplier = multiplier * (elements.strategyBoost.checked ? 1.2 : 1);
+  const configuredBaseRate = Number(stats.pointsPerUsdPerDay);
+  const pointsPerUsdPerDay = Number.isFinite(configuredBaseRate) && configuredBaseRate > 0
+    ? configuredBaseRate
+    : FALLBACK_STATS.pointsPerUsdPerDay;
+  const dailyPoints = amount * pointsPerUsdPerDay * effectiveMultiplier;
+  const totalPoints = dailyPoints * days;
 
   elements.strategyProfit.textContent = currency(profit);
+  elements.strategyPoints.textContent = `${compactNumber(totalPoints)} PTS`;
+  elements.strategyDailyPoints.textContent = `${compactNumber(dailyPoints)} PTS`;
+  elements.strategyPointsRateNote.textContent = TRANSLATIONS[language].strategyPointsRateNote.replace(
+    "{rate}",
+    pointsPerUsdPerDay.toLocaleString("en-US", { maximumFractionDigits: 4 }),
+  );
   elements.strategyTotal.textContent = currency(total);
   elements.strategyDays.textContent = integerNumber(days);
   elements.strategyApySummary.textContent = `${apy.toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;

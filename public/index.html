@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=strategy-20260908" />
+    <link rel="stylesheet" href="./styles.css?v=points-20260908" />
     <title>AXIS 空投计算器</title>
   </head>
   <body>
@@ -307,8 +307,14 @@
             <span class="strategy-kicker" id="strategy-result-title" data-i18n="strategyResultTitle">TGE 预计收益</span>
             <div class="strategy-profit" id="strategyProfit">$0</div>
             <span class="strategy-profit-caption" data-i18n="strategyProfitCaption">按 APY 日化复利估算</span>
+            <div class="strategy-points-highlight">
+              <span data-i18n="strategyPointsTitle">TGE 预计积分收益</span>
+              <strong id="strategyPoints">0 PTS</strong>
+              <small id="strategyPointsRateNote">每 $1 每日 1 Coordinates，再乘策略倍率</small>
+            </div>
             <dl class="strategy-breakdown">
               <div><dt data-i18n="strategyTotal">TGE 预计总额</dt><dd id="strategyTotal">$0</dd></div>
+              <div><dt data-i18n="strategyDailyPoints">预计每日积分</dt><dd id="strategyDailyPoints">0 PTS</dd></div>
               <div><dt data-i18n="strategyDays">计息天数</dt><dd id="strategyDays">0</dd></div>
               <div><dt data-i18n="strategyEffectiveApy">采用 APY</dt><dd id="strategyApySummary">0%</dd></div>
               <div><dt data-i18n="strategyEffectiveMultiplier">含 Boost 倍率</dt><dd id="strategyMultiplierSummary">12x</dd></div>
@@ -394,6 +400,6 @@
       </div>
     </footer>
 
-    <script src="./app.js?v=strategy-20260908" defer></script>
+    <script src="./app.js?v=points-20260908" defer></script>
   </body>
 </html>

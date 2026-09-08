@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { chromium } from "playwright-core";
 
 const API_URL = "https://api.axis.to/api/v1/points/leaderboard?limit=100";
+const CAMPAIGNS_URL = "https://api.axis.to/api/v1/points/campaigns";
 const COORDINATES_URL = "https://app.axis.to/coordinates";
 const EARN_URL = "https://app.axis.to/earn";
 const OUTPUT_PATH = resolve("public/data/axis-stats.json");
@@ -137,23 +138,44 @@ async function fetchAxisData() {
       throw new Error(`AXIS API returned HTTP ${result.status}: ${excerpt}`);
     }
 
+    const campaignsResponse = await page.goto(CAMPAIGNS_URL, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    const campaignsResult = {
+      body: (await campaignsResponse?.text()) ?? "",
+      status: campaignsResponse?.status() ?? 0,
+    };
+    if (campaignsResult.status !== 200) {
+      const excerpt = campaignsResult.body.replaceAll(/\s+/g, " ").slice(0, 200);
+      throw new Error(`AXIS campaigns API returned HTTP ${campaignsResult.status}: ${excerpt}`);
+    }
+
     return {
       earnOpportunities,
       payload: JSON.parse(result.body),
+      campaignsPayload: JSON.parse(campaignsResult.body),
     };
   } finally {
     await browser.close();
   }
 }
 
-const { earnOpportunities, payload } = await fetchAxisData();
+const { earnOpportunities, payload, campaignsPayload } = await fetchAxisData();
 const data = payload?.data;
+const activeCampaign = campaignsPayload?.data?.find((campaign) => campaign.status === "ACTIVE")
+  ?? campaignsPayload?.data?.[0];
+const pointsPerUsdPerDay = Number.parseFloat(
+  activeCampaign?.coordinatesRates?.find((rate) => rate.chainId === 1)?.pointsPerUsdPerDay,
+);
 
 if (
   payload?.success !== true ||
   !data ||
   !Number.isFinite(Number.parseFloat(data.totalPoints)) ||
-  !Number.isInteger(data.totalWallets)
+  !Number.isInteger(data.totalWallets) ||
+  !Number.isFinite(pointsPerUsdPerDay) ||
+  pointsPerUsdPerDay <= 0
 ) {
   throw new Error("AXIS API returned an unexpected payload");
 }
@@ -163,6 +185,9 @@ const snapshot = {
   totalWallets: data.totalWallets,
   timestamp: payload.timestamp ?? new Date().toISOString(),
   source: API_URL,
+  pointsPerUsdPerDay,
+  pointsRateSource: CAMPAIGNS_URL,
+  pointsCampaign: activeCampaign?.name ?? null,
   earnUpdatedAt: new Date().toISOString(),
   earnSource: EARN_URL,
   strategyTge: DEFAULT_STRATEGY_TGE,

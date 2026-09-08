@@ -35,9 +35,11 @@
 TGE 预计总额 = 投入金额 × (1 + 日收益率)^计息天数
 TGE 预计收益 = TGE 预计总额 - 投入金额
 含 Boost 倍率 = Coordinates 倍率 × 1.2
+预计每日积分 = 投入金额 × 官方每日基础积分 × 含 Boost 倍率
+TGE 预计积分收益 = 预计每日积分 × 计息天数
 ```
 
-AXIS 未公布固定 APY 的 Coordinates-only、Curve 与 Pendle YT/LP 策略默认按 `0%`，由用户自行输入预期 APY。Coordinates 倍率只单独展示，不混入资金收益计算。
+当前官方 Campaign 配置的基础速率为每 `$1` 合格仓位每天 `1 Coordinates`。AXIS 未公布固定 APY 的 Coordinates-only、Curve 与 Pendle YT/LP 策略默认按 `0%`，由用户自行输入预期 APY。积分按投入金额恒定估算，Coordinates 倍率不混入资金收益计算。
 
 ## 本地预览
 

@@ -1,9 +1,12 @@
 {
-  "totalPoints": "56854011452.133425918695357075",
+  "totalPoints": "56863778618.035604789777483704",
   "totalWallets": 2033,
-  "timestamp": "2026-09-08T07:05:08.074Z",
+  "timestamp": "2026-09-08T07:40:45.961Z",
   "source": "https://api.axis.to/api/v1/points/leaderboard?limit=100",
-  "earnUpdatedAt": "2026-09-08T07:04:47.340Z",
+  "pointsPerUsdPerDay": 1,
+  "pointsRateSource": "https://api.axis.to/api/v1/points/campaigns",
+  "pointsCampaign": "Origin Season 1",
+  "earnUpdatedAt": "2026-09-08T07:40:25.365Z",
   "earnSource": "https://app.axis.to/earn",
   "strategyTge": "2026-12-03",
   "earnOpportunities": [
