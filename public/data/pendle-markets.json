@@ -1,39 +1,39 @@
 {
-  "fetchedAt": "2026-09-08T08:10:06.070Z",
+  "fetchedAt": "2026-09-10T02:05:05.411Z",
   "markets": [
     {
       "address": "0x5e572498e9f83650f0ff24194999bddb4b390928",
       "source": "https://api-v2.pendle.finance/core/v1/1/markets/0x5e572498e9f83650f0ff24194999bddb4b390928",
       "expiry": "2026-12-03T00:00:00.000Z",
-      "updatedAt": "2026-09-08T08:06:00.000Z",
-      "priceUpdatedAt": "2026-09-08T08:10:15.018Z",
-      "ytPrice": 0.042593022843622284,
-      "accountingPrice": 0.9999682,
-      "ptApy": 0.2037906874514659,
-      "lpApy": 0.25383419282035796,
-      "underlyingApy": 0.2165696265921122,
-      "underlyingInterestApy": 0.2165696265921122,
+      "updatedAt": "2026-09-10T02:01:00.000Z",
+      "priceUpdatedAt": "2026-09-10T02:04:45.019Z",
+      "ytPrice": 0.04133262031389352,
+      "accountingPrice": 0.99991467,
+      "ptApy": 0.20156161585333576,
+      "lpApy": 0.26107272128838704,
+      "underlyingApy": 0.24653715783680386,
+      "underlyingInterestApy": 0.24653715783680386,
       "underlyingRewardApr": 0,
-      "ytApy": 0.2314230309504861,
-      "ytRoi": 0.050067247297063355,
-      "ptRoi": 0.044489314718695105
+      "ytApy": 1.1652331467369255,
+      "ytRoi": 0.19435216639254604,
+      "ptRoi": 0.04311835444523604
     },
     {
       "address": "0x0bef762d2094ac80821c657dea6783fc43435292",
       "source": "https://api-v2.pendle.finance/core/v1/1/markets/0x0bef762d2094ac80821c657dea6783fc43435292",
       "expiry": "2026-12-03T00:00:00.000Z",
-      "updatedAt": "2026-09-08T08:06:00.000Z",
-      "priceUpdatedAt": "2026-09-08T08:10:15.018Z",
-      "ytPrice": 0.03242311036745732,
-      "accountingPrice": 0.9999682,
-      "ptApy": 0.15079189163360995,
-      "lpApy": 0.11075177456197238,
+      "updatedAt": "2026-09-10T02:01:00.000Z",
+      "priceUpdatedAt": "2026-09-10T02:04:45.019Z",
+      "ytPrice": 0.032280680402312106,
+      "accountingPrice": 0.99991467,
+      "ptApy": 0.15343015415184746,
+      "lpApy": 0.10778627486072065,
       "underlyingApy": 0,
       "underlyingInterestApy": 0,
       "underlyingRewardApr": 0,
       "ytApy": -1,
       "ytRoi": -1,
-      "ptRoi": 0.03351064180149721
+      "ptRoi": 0.0333603119861825
     }
   ]
 }

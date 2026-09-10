@@ -1,12 +1,12 @@
 {
-  "totalPoints": "56863778618.035604789777483704",
-  "totalWallets": 2033,
-  "timestamp": "2026-09-08T07:40:45.961Z",
+  "totalPoints": "57496981376.988449196068473756",
+  "totalWallets": 2088,
+  "timestamp": "2026-09-10T02:07:55.754Z",
   "source": "https://api.axis.to/api/v1/points/leaderboard?limit=100",
   "pointsPerUsdPerDay": 1,
   "pointsRateSource": "https://api.axis.to/api/v1/points/campaigns",
   "pointsCampaign": "Origin Season 1",
-  "earnUpdatedAt": "2026-09-08T07:40:25.365Z",
+  "earnUpdatedAt": "2026-09-10T02:08:02.654Z",
   "earnSource": "https://app.axis.to/earn",
   "strategyTge": "2026-12-03",
   "earnOpportunities": [
@@ -15,7 +15,7 @@
       "multiplier": 10,
       "apy": {
         "type": "rate",
-        "value": "7.31%"
+        "value": "6.64%"
       },
       "tge": "2026-12-03",
       "url": "https://app.axis.to/origin"
@@ -34,7 +34,7 @@
       "multiplier": 4,
       "apy": {
         "type": "rate",
-        "value": "29.92%"
+        "value": "34.72%"
       },
       "tge": "2026-12-03",
       "url": "https://app.axis.to/stake"

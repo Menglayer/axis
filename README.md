@@ -39,15 +39,16 @@ TGE 预计收益 = TGE 预计总额 - 投入金额
 TGE 预计积分收益 = 预计每日积分 × 计息天数
 ```
 
-当前官方 Campaign 配置的基础速率为每 `$1` 合格仓位每天 `1 Coordinates`。Pendle 数据读取同源 `public/data/pendle-markets.json`，显示快照时间。PT 使用 impliedApy，LP 使用未加成 aggregatedApy，sUSDx 质押使用 AXIS Earn 展示 APY。PT 积分资格未确认，默认 0x。未报价的 Curve 保留可编辑假设。积分按投入金额恒定估算，Coordinates 倍率不混入资金收益计算。
+当前官方 Campaign 配置的基础速率为每 `$1` 合格仓位每天 `1 Coordinates`。Pendle 每次打开页面直接请求官方 API，失败时读取同源 `public/data/pendle-markets.json` 并明确标记快照。PT 使用 impliedApy，LP 使用未加成 aggregatedApy，sUSDx 质押使用 AXIS Earn 展示 APY。PT 积分资格未确认，默认 0x。未报价的 Curve 保留可编辑假设。积分按投入金额恒定估算，Coordinates 倍率不混入资金收益计算。
 
 ## 本地预览
 
 ```powershell
-python -m http.server 4173 --directory public
+npm install
+npm start
 ```
 
-打开 `http://127.0.0.1:4173/`。
+打开 `http://127.0.0.1:3000/`。后端需要安装 Chrome/Edge，或设置 `AXIS_CHROME_PATH`。生产服务通过 `HOST`、`PORT` 配置监听地址。
 
 ## 校验
 
@@ -57,7 +58,7 @@ npm run check
 
 ## 数据更新
 
-AXIS 官方 API 只允许特定来源直接访问，浏览器从自定义域名请求会被 Cloudflare 拦截。因此页面读取仓库中的同源精简快照，包含总积分、钱包数、更新时间和 Earn 倍率，不存储 Top 100 排行。GitHub 定时任务保持关闭，按需手动同步。
+AXIS 官方 API 只允许特定来源直接访问，浏览器从自定义域名请求会被 Cloudflare 拦截。页面每次打开调用同源 `/api/axis-stats`，Node 服务通过浏览器更新总积分、钱包数、Campaign 和 Earn 倍率；同时打开的请求共用一次刷新。失败时明确标记并回退到精简快照。GitHub Pages 仅支持静态文件，必须把网站部署到支持 Node + Chrome 的服务，或为同域名配置该 API 反向代理，才能实时刷新 AXIS；单独部署 Pages 时 Pendle 仍实时刷新，AXIS 使用快照。GitHub 定时任务保持关闭。
 
 手动刷新：
 
@@ -80,3 +81,5 @@ YT 数量 = 投入 / 实际 YT 美元价格；积分名义本金 = YT 数量 × 
 原积分估值表单已并入策略表单，统一重置。总 APY = [(预计回收金额含新增积分空投 / 投入)^(365 / 距 TGE 天数) − 1] × 100%。策略早于 TGE 结束时，底息在策略结束停止，年化仍包含等候空投的时间。已有积分不计入投资回报；YT 已扣买入成本。金额或期限为零时显示 —。此为情景复利年化，不代表积分奖励可重复投资。
 
 收益时间精确至秒，日期按 UTC 00:00 处理，与 Pendle 到期时间一致。YT 官方预计 APY 使用 ytFloatingApy，与 underlyingApy 区分。公式依据 https://docs.pendle.finance/pendle-v2/ProtocolMechanics/PendleMarketAPYCalculation 。
+
+YT 不含积分 APY 按当前价格与剩余期限重新计算：`((accountingPrice × ((1 + interestApy)^years - 1 + rewardApr × years) × 0.95 / ytPrice)^(1 / years) - 1)`。YT 到期本金归零；含积分总 APY 沿用页面 FDV、空投比例、增长率与 Boost 假设。提前结束的估计不包含 YT 卖出残值。

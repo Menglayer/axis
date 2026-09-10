@@ -62,7 +62,7 @@ const FALLBACK_STATS = {
 
 const TRANSLATIONS = {
   zh: {
-    ytMarketApy: "YT 官方预计 APY · 不含积分",
+    ytMarketApy: "YT 重算 APY · 不含积分",
     documentTitle: "AXIS 空投计算器",
     metaDescription: "基于 AXIS Coordinates 官方数据与最新 Earn 倍率估算潜在空投价值。默认 FDV 2 亿美元、全网积分每日复利增幅 2%、空投比例 5%。",
     axisLogoAria: "打开 AXIS Coordinates",
@@ -138,8 +138,9 @@ const TRANSLATIONS = {
     howTitle: "计算方式",
     howCopy: "从今天到 TGE，将全网 Coordinates 按每日增幅复利计算，再用 FDV 与空投比例得到空投池价值，按你的有效积分占复利后总积分的比例分配。",
     disclaimer: "本工具由 MengLayer 独立制作，仅供情景估算，不代表 AXIS 官方承诺或投资建议。FDV、TGE、空投比例、积分规则及 20% Boost 均可能变化，请以项目最终公告为准。",
-    loadingData: "正在读取官方快照",
-    officialSnapshot: "官方 API 数据快照",
+    loadingData: "正在更新官方数据",
+    liveData: "AXIS 积分实时更新",
+    officialSnapshot: "AXIS 实时更新失败 · 使用官方快照",
     fallbackSnapshot: "使用内置官方快照",
     switchLanguage: "Switch to English",
     daysLeft: "{days} 天后",
@@ -155,7 +156,7 @@ const TRANSLATIONS = {
     periodReturn: "期间总回报率",
   },
   en: {
-    ytMarketApy: "YT market APY · excluding points",
+    ytMarketApy: "YT recalculated APY · excluding points",
     documentTitle: "AXIS Airdrop Calculator",
     metaDescription: "Estimate a potential AXIS airdrop using official Coordinates data and the latest Earn multipliers. Defaults: $200M FDV, 2% daily compound growth, and 5% allocation.",
     axisLogoAria: "Open AXIS Coordinates",
@@ -231,8 +232,9 @@ const TRANSLATIONS = {
     howTitle: "How it works",
     howCopy: "From today to TGE, network Coordinates compound at the daily growth rate. We then derive the airdrop pool from FDV and allocation and apply your effective share of the compounded total.",
     disclaimer: "Built independently by MengLayer for scenario estimates only. This is not an official AXIS commitment or investment advice. FDV, TGE, allocation, points rules, and the 20% Boost may change; refer to the project's final announcement.",
-    loadingData: "Loading official snapshot",
-    officialSnapshot: "Official API snapshot",
+    loadingData: "Refreshing official data",
+    liveData: "AXIS points updated live",
+    officialSnapshot: "AXIS live update unavailable · snapshot",
     fallbackSnapshot: "Using built-in official snapshot",
     switchLanguage: "切换至中文",
     daysLeft: "{days} days left",
@@ -439,7 +441,7 @@ function updateStrategyContext() {
   elements.strategyTge.max = market?.expiry.slice(0,10) ?? '';
   const zh = language === 'zh';
   elements.strategyApyNote.textContent = market
-    ? (zh ? 'Pendle 市场快照 · ' : 'Pendle snapshot · ') + formatDate(market.updatedAt) + (yt ? (zh ? '；YT 到期归零，按实际价格购买，底层利息按 APY 复利、奖励按 APR 单利估算，扣除 5% 收益费；提前结束不计 YT 卖出残值，未计交易费及滑点。' : '; YT expires at zero. Current price; underlying interest compounds, rewards accrue linearly, less 5% yield fee; excludes early-exit resale value, trading fees/slippage.') : (zh ? '；APY 按当前市场估算，PT 积分未确认，按 0x。LP 使用未加成 APY。' : '; Current APY estimate. PT points unconfirmed: 0x. LP uses unboosted APY.'))
+    ? (market.live ? (zh ? 'Pendle 实时数据 · ' : 'Pendle live · ') : (zh ? 'Pendle 更新失败，使用快照 · ' : 'Pendle refresh failed, snapshot · ')) + formatDate(market.updatedAt) + (yt ? (zh ? '；YT 到期归零，按实际价格购买，底层利息按 APY 复利、奖励按 APR 单利估算，扣除 5% 收益费；提前结束不计 YT 卖出残值，未计交易费及滑点。' : '; YT expires at zero. Current price; underlying interest compounds, rewards accrue linearly, less 5% yield fee; excludes early-exit resale value, trading fees/slippage.') : (zh ? '；APY 按当前市场估算，PT 积分未确认，按 0x。LP 使用未加成 APY。' : '; Current APY estimate. PT points unconfirmed: 0x. LP uses unboosted APY.'))
     : getStrategyApyNote(opportunity);
 }
 
@@ -517,6 +519,12 @@ function calculateStrategy() {
   const dailyRate = Math.pow(1 + apy / 100, 1 / 365) - 1;
   const ytInterest = market ? Math.expm1(Math.log1p(market.underlyingInterestApy) * days / 365) : 0;
   const ytRewards = market ? market.underlyingRewardApr * days / 365 : 0;
+  if (yt && market) {
+    const years = expiryDays / 365;
+    const payout = market.accountingPrice * (Math.expm1(Math.log1p(market.underlyingInterestApy) * years) + market.underlyingRewardApr * years) * 0.95;
+    const recalculatedApy = years > 0 && ytPrice > 0 ? Math.expm1(Math.log(payout / ytPrice) / years) * 100 : NaN;
+    document.querySelector('#ytMarketApy').textContent = Number.isFinite(recalculatedApy) ? recalculatedApy.toFixed(2) + '%' : '—';
+  }
   const total = yt ? exposure * (ytInterest + ytRewards) * 0.95 : amount * Math.pow(1 + dailyRate, days);
   const profit = total - amount;
   const effectiveMultiplier = multiplier * (elements.strategyBoost.checked ? 1.2 : 1);
@@ -599,20 +607,25 @@ function resetStrategyDefaults() {
 }
 
 async function loadStats() {
+  let live = false;
   try {
-    const response = await fetch(`./data/axis-stats.json?v=${Date.now()}`, {
-      cache: "no-store",
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
+    let payload;
+    try {
+      payload = await fetchJson('./api/axis-stats', 90000);
+      if (!(Number(payload.totalPoints) > 0) || !Number.isInteger(payload.totalWallets)) throw new Error('Invalid live AXIS data');
+      live = true;
+    } catch {
+      payload = await fetchJson(`./data/axis-stats.json?v=${Date.now()}`);
+    }
     const totalPoints = Number.parseFloat(payload.totalPoints);
     const totalWallets = Number.parseInt(payload.totalWallets, 10);
     if (!Number.isFinite(totalPoints) || !Number.isFinite(totalWallets)) {
       throw new Error("Invalid AXIS snapshot");
     }
     stats = { ...payload, totalPoints, totalWallets };
-    dataState = "officialSnapshot";
-    elements.dataStatus.classList.add("ready");
+    dataState = live ? "liveData" : "officialSnapshot";
+    elements.dataStatus.classList.toggle("ready", live);
+    elements.dataStatus.classList.toggle("stale", !live);
   } catch (error) {
     stats = FALLBACK_STATS;
     dataState = "fallbackSnapshot";
@@ -654,11 +667,33 @@ applyLanguage();
 resetStrategyDefaults();
 async function loadPendle() {
   try {
-    const response = await fetch('./data/pendle-markets.json?v=' + Date.now(), { cache: 'no-store' });
-    if (!response.ok) throw new Error('Pendle snapshot unavailable');
-    const payload = await response.json();
-    pendleMarkets = payload.markets.filter(m => m.ytPrice > 0 && Number.isFinite(m.ptApy) && Number.isFinite(m.lpApy) && Number.isFinite(m.underlyingInterestApy) && Number.isFinite(m.underlyingRewardApr) && Number.isFinite(m.ytApy));
-    renderStrategyOptions(); renderEarnData(); applySelectedStrategyDefaults();
+    const addresses = ['0x5e572498e9f83650f0ff24194999bddb4b390928', '0x0bef762d2094ac80821c657dea6783fc43435292'];
+    const snapshot = await fetchJson('./data/pendle-markets.json?v=' + Date.now()).catch(() => ({ markets: [] }));
+    pendleMarkets = (await Promise.all(addresses.map(async address => {
+      try {
+        const data = await fetchJson(`https://api-v2.pendle.finance/core/v1/1/markets/${address}`);
+        const market = { address, expiry: data.expiry, updatedAt: data.dataUpdatedAt, ytPrice: data.yt?.price?.usd, accountingPrice: data.accountingAsset?.price?.usd, ptApy: data.impliedApy, lpApy: data.aggregatedApy, underlyingApy: data.underlyingApy, underlyingInterestApy: data.underlyingInterestApy, underlyingRewardApr: data.underlyingRewardApy, ytApy: data.ytFloatingApy, ytRoi: data.ytRoi, live: true };
+        if (!validMarket(market)) throw new Error('Invalid live market');
+        return market;
+      } catch (error) {
+        console.warn('Pendle live refresh failed', address, error);
+        return snapshot.markets.find(m => m.address === address);
+      }
+    }))).filter(validMarket);
+    renderStrategyOptions(); renderEarnData();
+    if (!strategyInputsDirty) applySelectedStrategyDefaults();
+    else { updateStrategyContext(); calculate(); }
   } catch (error) { console.warn(error); }
 }
-loadStats().then(loadPendle);
+function validMarket(m) {
+  return m && m.ytPrice > 0 && m.accountingPrice > 0 && Number.isFinite(Date.parse(m.expiry)) && ['ptApy', 'lpApy', 'underlyingApy', 'underlyingInterestApy', 'underlyingRewardApr'].every(key => Number.isFinite(m[key]) && m[key] >= 0) && Number.isFinite(m.ytApy) && m.ytApy >= -1;
+}
+async function fetchJson(url, timeout = 15000) {
+  const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(timeout) });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+Promise.allSettled([loadStats(), loadPendle()]);
+window.addEventListener('pageshow', event => {
+  if (event.persisted) Promise.allSettled([loadStats(), loadPendle()]);
+});
